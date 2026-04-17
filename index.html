@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>النظام المتكامل لإعداد تقارير الفرز من المصدر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<style>
+  :root {
+    --green-deep: #0d5c2e;
+    --green-mid: #1a7a40;
+    --green-light: #2da05a;
+    --green-pale: #e8f5ee;
+    --green-glow: #5cba84;
+    --gold: #c8971a;
+    --gold-light: #e8b84b;
+    --cream: #fdfaf4;
+    --white: #ffffff;
+    --dark: #0a1f12;
+    --gray: #6b7c70;
+    --border: #c5ddc9;
+    --shadow: 0 4px 24px rgba(13,92,46,0.12);
+    --shadow-lg: 0 12px 48px rgba(13,92,46,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 60%, var(--green-light) 100%);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 32px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    backdrop-filter: blur(8px);
+  }
+
+  .header-text h1 {
+    color: white;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.3px;
+  }
+
+  .header-text p {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.82rem;
+    margin-top: 4px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .header-badge {
+    margin-right: auto;
+    background: rgba(200,151,26,0.2);
+    border: 1px solid rgba(200,151,26,0.5);
+    color: var(--gold-light);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  /* SESSION INFO CARD */
+  .session-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .session-card-header {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .session-card-header h2 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .session-card-header span {
+    font-size: 1.1rem;
+  }
+
+  .session-fields {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 680px) {
+    .session-fields { grid-template-columns: 1fr; }
+    .header-inner { flex-wrap: wrap; }
+    .header-badge { margin-right: 0; }
+  }
+
+  .field-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--green-deep);
+    margin-bottom: 6px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .field-group input, .field-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.92rem;
+    color: var(--dark);
+    background: var(--green-pale);
+    transition: all 0.2s;
+    direction: rtl;
+  }
+
+  .field-group input:focus, .field-group select:focus {
+    outline: none;
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 3px rgba(45,160,90,0.15);
+    background: white;
+  }
+
+  .session-save-indicator {
+    padding: 10px 24px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--gray);
+  }
+
+  .save-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green-glow);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .stat-icon.green { background: var(--green-pale); }
+  .stat-icon.gold { background: #fdf3dc; }
+  .stat-icon.blue { background: #e8f0fe; }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--gray);
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--green-deep);
+    line-height: 1;
+  }
+
+  /* POINT ENTRY CARD */
+  .entry-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .entry-card-header {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .entry-card-header h2 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .point-counter {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .entry-body {
+    padding: 24px;
+  }
+
+  .entry-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 580px) {
+    .entry-row { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 1fr; }
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.92rem;
+    resize: vertical;
+    min-height: 80px;
+    direction: rtl;
+    color: var(--dark);
+    background: var(--green-pale);
+    transition: all 0.2s;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 3px rgba(45,160,90,0.15);
+    background: white;
+  }
+
+  /* IMAGE UPLOAD */
+  .image-section {
+    margin-bottom: 20px;
+  }
+
+  .image-section label.section-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--green-deep);
+    margin-bottom: 10px;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .image-upload-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .image-upload-area { grid-template-columns: 1fr; }
+  }
+
+  .upload-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--green-pale);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .upload-btn:hover {
+    border-color: var(--green-light);
+    background: #d4eedd;
+  }
+
+  .upload-btn input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-btn .icon { font-size: 1.8rem; }
+  .upload-btn .label { font-size: 0.82rem; font-weight: 600; color: var(--green-deep); }
+  .upload-btn .sub { font-size: 0.73rem; color: var(--gray); }
+
+  .camera-btn {
+    background: linear-gradient(135deg, #1a4e8a, #2563eb);
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s;
+  }
+
+  .camera-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .camera-btn .icon { font-size: 1.8rem; }
+  .camera-btn .label { font-size: 0.82rem; font-weight: 600; }
+  .camera-btn .sub { font-size: 0.73rem; opacity: 0.8; }
+
+  .preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .preview-thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    position: relative;
+  }
+
+  .thumb-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .thumb-remove {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 20px;
+    height: 20px;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* ENTRY ACTIONS */
+  .entry-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green-mid), var(--green-deep));
+    color: white;
+    box-shadow: 0 4px 14px rgba(26,122,64,0.35);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26,122,64,0.45);
+  }
+
+  .btn-secondary {
+    background: var(--green-pale);
+    color: var(--green-deep);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: #d4eedd;
+    border-color: var(--green-light);
+  }
+
+  .btn-export {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: white;
+    box-shadow: 0 4px 14px rgba(200,151,26,0.35);
+    margin-right: auto;
+  }
+
+  .btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200,151,26,0.45);
+  }
+
+  .btn-danger {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1.5px solid #fed7d7;
+  }
+
+  .btn-danger:hover { background: #fed7d7; }
+
+  /* POINTS TABLE */
+  .points-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .points-card-header {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .points-card-header h2 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .points-table-wrap {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  thead th {
+    background: var(--green-pale);
+    color: var(--green-deep);
+    font-weight: 700;
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f0f4f1;
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: var(--green-pale); }
+
+  tbody td {
+    padding: 11px 16px;
+    color: var(--dark);
+    vertical-align: middle;
+  }
+
+  .td-num {
+    font-weight: 700;
+    color: var(--green-deep);
+    font-size: 1rem;
+  }
+
+  .td-img-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--green-pale);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    color: var(--green-deep);
+    font-weight: 600;
+  }
+
+  .td-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #c53030;
+    font-size: 1rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+
+  .td-delete:hover { background: #fff5f5; }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--gray);
+  }
+
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green-deep);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); }
+
+  /* CAMERA MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .camera-modal {
+    background: var(--dark);
+    border-radius: 20px;
+    overflow: hidden;
+    width: min(480px, 95vw);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .camera-modal-header {
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .camera-modal-header h3 { color: white; font-size: 1rem; }
+
+  .close-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+
+  #videoEl {
+    width: 100%;
+    display: block;
+    max-height: 320px;
+    object-fit: cover;
+  }
+
+  .camera-controls {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .capture-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+  }
+
+  .capture-btn:hover { transform: scale(1.05); }
+  .capture-btn:active { transform: scale(0.95); }
+
+  #canvasEl { display: none; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: var(--gray);
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .footer span {
+    color: var(--green-deep);
+    font-weight: 700;
+  }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-mid), var(--green-glow));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-circle">♻️</div>
+    <div class="header-text">
+      <h1>النظام المتكامل لإعداد تقارير الفرز من المصدر</h1>
+      <p>دائرة الدراسات البيئية — م. معاذ المناصير</p>
+    </div>
+    <div class="header-badge">🌿 إصدار 1.0</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon green">📍</div>
+      <div>
+        <div class="stat-label">إجمالي النقاط المرصودة</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon gold">📸</div>
+      <div>
+        <div class="stat-label">إجمالي الصور الملتقطة</div>
+        <div class="stat-value" id="statPhotos">0</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">🕐</div>
+      <div>
+        <div class="stat-label">وقت بدء الجلسة</div>
+        <div class="stat-value" id="statTime" style="font-size:1rem;">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION INFO -->
+  <div class="session-card">
+    <div class="session-card-header">
+      <span>📋</span>
+      <h2>بيانات الجلسة الميدانية</h2>
+    </div>
+    <div class="session-fields">
+      <div class="field-group">
+        <label>📅 اليوم</label>
+        <input type="text" id="fieldDay" placeholder="مثال: الأحد" />
+      </div>
+      <div class="field-group">
+        <label>🗓️ التاريخ</label>
+        <input type="date" id="fieldDate" />
+      </div>
+      <div class="field-group">
+        <label>📍 المنطقة</label>
+        <input type="text" id="fieldZone" placeholder="مثال: حي الياسمين" />
+      </div>
+    </div>
+    <div class="session-save-indicator">
+      <div class="save-dot"></div>
+      تُحفظ بيانات الجلسة تلقائياً مع كل نقطة جديدة
+    </div>
+  </div>
+
+  <!-- ENTRY CARD -->
+  <div class="entry-card">
+    <div class="entry-card-header">
+      <h2>➕ إضافة نقطة رصد جديدة</h2>
+      <div class="point-counter">نقطة رقم: <span id="nextPointNum">1</span></div>
+    </div>
+    <div class="entry-body">
+      <div class="entry-row">
+        <div class="field-group">
+          <label>🔢 رقم النقطة</label>
+          <input type="text" id="pointNum" placeholder="P-001" />
+        </div>
+        <div class="field-group">
+          <label>📝 الملاحظات الميدانية</label>
+          <textarea id="pointNotes" placeholder="أدخل الملاحظات التفصيلية للنقطة... (نوع المخلفات، الحالة، التوصيات...)"></textarea>
+        </div>
+      </div>
+
+      <div class="image-section">
+        <label class="section-label">📷 رفع الصور الميدانية</label>
+        <div class="image-upload-area">
+          <label class="upload-btn">
+            <input type="file" id="studioUpload" accept="image/*" multiple onchange="handleStudioUpload(event)">
+            <div class="icon">🖼️</div>
+            <div class="label">رفع من الاستديو</div>
+            <div class="sub">JPG, PNG, WEBP — متعدد</div>
+          </label>
+          <button class="camera-btn" onclick="openCamera()">
+            <div class="icon">📸</div>
+            <div class="label">التقاط بالكاميرا</div>
+            <div class="sub">تصوير مباشر</div>
+          </button>
+        </div>
+        <div class="preview-grid" id="previewGrid"></div>
+      </div>
+
+      <div class="entry-actions">
+        <button class="btn btn-primary" onclick="savePoint()">💾 حفظ النقطة</button>
+        <button class="btn btn-secondary" onclick="saveAndAddNew()">➕ حفظ وإضافة جديدة</button>
+        <button class="btn btn-danger" onclick="resetEntry()">🗑️ مسح الإدخال</button>
+        <button class="btn btn-export" onclick="exportToWord()">📄 تصدير تقرير Word</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POINTS TABLE -->
+  <div class="points-card">
+    <div class="points-card-header">
+      <h2>📊 جدول النقاط المرصودة</h2>
+      <div style="color:rgba(255,255,255,0.7);font-size:0.8rem;" id="tableSubtitle">لا توجد نقاط بعد</div>
+    </div>
+    <div class="points-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:60px;">#</th>
+            <th>رقم النقطة</th>
+            <th>الملاحظات الميدانية</th>
+            <th>الصور</th>
+            <th>الوقت</th>
+            <th style="width:50px;">حذف</th>
+          </tr>
+        </thead>
+        <tbody id="pointsBody">
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <div class="icon">🗂️</div>
+                <p>لم يتم تسجيل أي نقطة بعد. ابدأ بإضافة أول نقطة رصد.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bottom-bar" style="justify-content:flex-end;">
+      <button class="btn btn-danger" onclick="clearAll()" id="clearAllBtn" style="display:none;">🗑️ مسح جميع النقاط</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  جميع الحقوق محفوظة © <span>دائرة الدراسات البيئية / م. معاذ المناصير</span> — للاستخدام المهني بواسطة <span>م. عمر الهدبان</span>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CAMERA MODAL -->
+<div class="modal-overlay" id="cameraModal">
+  <div class="camera-modal">
+    <div class="camera-modal-header">
+      <h3>📸 التقاط صورة ميدانية</h3>
+      <button class="close-btn" onclick="closeCamera()">✕</button>
+    </div>
+    <video id="videoEl" autoplay playsinline></video>
+    <canvas id="canvasEl"></canvas>
+    <div class="camera-controls">
+      <button class="capture-btn" onclick="capturePhoto()" title="التقاط صورة">📸</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let points = [];
+let currentImages = []; // {dataUrl, name}
+let videoStream = null;
+let sessionStart = null;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  document.getElementById('fieldDate').value = today.toISOString().split('T')[0];
+  const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  document.getElementById('fieldDay').value = days[today.getDay()];
+  sessionStart = today.toLocaleTimeString('ar-JO', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('statTime').textContent = sessionStart;
+  updateNextPointNum();
+});
+
+// ===== STUDIO UPLOAD =====
+function handleStudioUpload(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      currentImages.push({ dataUrl: ev.target.result, name: file.name });
+      renderPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+// ===== CAMERA =====
+async function openCamera() {
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    document.getElementById('videoEl').srcObject = videoStream;
+    document.getElementById('cameraModal').classList.add('active');
+  } catch(err) {
+    showToast('⚠️ تعذر الوصول للكاميرا. تأكد من منح الصلاحية.', false);
+  }
+}
+
+function closeCamera() {
+  if(videoStream) videoStream.getTracks().forEach(t => t.stop());
+  videoStream = null;
+  document.getElementById('cameraModal').classList.remove('active');
+}
+
+function capturePhoto() {
+  const video = document.getElementById('videoEl');
+  const canvas = document.getElementById('canvasEl');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  const name = 'camera_' + Date.now() + '.jpg';
+  currentImages.push({ dataUrl, name });
+  renderPreviews();
+  showToast('✅ تم التقاط الصورة بنجاح');
+  closeCamera();
+}
+
+// ===== PREVIEWS =====
+function renderPreviews() {
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = '';
+  currentImages.forEach((img, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb-wrap';
+    wrap.innerHTML = `
+      <img src="${img.dataUrl}" class="preview-thumb" title="${img.name}">
+      <button class="thumb-remove" onclick="removeImage(${idx})">✕</button>`;
+    grid.appendChild(wrap);
+  });
+}
+
+function removeImage(idx) {
+  currentImages.splice(idx, 1);
+  renderPreviews();
+}
+
+// ===== SAVE POINT =====
+function savePoint() {
+  const num = document.getElementById('pointNum').value.trim();
+  const notes = document.getElementById('pointNotes').value.trim();
+  if(!num) { showToast('⚠️ يرجى إدخال رقم النقطة', false); return; }
+
+  // save session info
+  const day = document.getElementById('fieldDay').value.trim();
+  const date = document.getElementById('fieldDate').value;
+  const zone = document.getElementById('fieldZone').value.trim();
+
+  const point = {
+    id: Date.now(),
+    num,
+    notes,
+    images: [...currentImages],
+    time: new Date().toLocaleTimeString('ar-JO', {hour:'2-digit',minute:'2-digit'}),
+    day, date, zone
+  };
+
+  points.push(point);
+  updateTable();
+  updateStats();
+  showToast(`✅ تم حفظ النقطة "${num}" بنجاح`);
+  resetEntry();
+  updateNextPointNum();
+  return true;
+}
+
+function saveAndAddNew() {
+  if(savePoint()) {
+    setTimeout(() => document.getElementById('pointNum').focus(), 100);
+  }
+}
+
+function resetEntry() {
+  document.getElementById('pointNum').value = '';
+  document.getElementById('pointNotes').value = '';
+  document.getElementById('previewGrid').innerHTML = '';
+  currentImages = [];
+}
+
+function removePoint(id) {
+  points = points.filter(p => p.id !== id);
+  updateTable();
+  updateStats();
+  updateNextPointNum();
+  showToast('🗑️ تم حذف النقطة');
+}
+
+function clearAll() {
+  if(confirm('هل أنت متأكد من مسح جميع النقاط؟')) {
+    points = [];
+    updateTable();
+    updateStats();
+    updateNextPointNum();
+    showToast('🗑️ تم مسح جميع النقاط');
+  }
+}
+
+// ===== UPDATE TABLE =====
+function updateTable() {
+  const tbody = document.getElementById('pointsBody');
+  const subtitle = document.getElementById('tableSubtitle');
+  const clearBtn = document.getElementById('clearAllBtn');
+
+  if(points.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">🗂️</div><p>لم يتم تسجيل أي نقطة بعد. ابدأ بإضافة أول نقطة رصد.</p></div></td></tr>`;
+    subtitle.textContent = 'لا توجد نقاط بعد';
+    clearBtn.style.display = 'none';
+    return;
+  }
+
+  subtitle.textContent = `${points.length} نقطة مسجلة`;
+  clearBtn.style.display = '';
+  tbody.innerHTML = points.map((p,i) => `
+    <tr>
+      <td class="td-num">${i+1}</td>
+      <td><strong>${p.num}</strong></td>
+      <td style="max-width:320px;white-space:pre-wrap;font-size:0.82rem;">${p.notes || '<span style="color:#999">—</span>'}</td>
+      <td><span class="td-img-count">📸 ${p.images.length}</span></td>
+      <td style="font-size:0.8rem;color:var(--gray);">${p.time}</td>
+      <td><button class="td-delete" onclick="removePoint(${p.id})">🗑️</button></td>
+    </tr>`).join('');
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = points.length;
+  const totalPhotos = points.reduce((s,p) => s + p.images.length, 0);
+  document.getElementById('statPhotos').textContent = totalPhotos;
+}
+
+function updateNextPointNum() {
+  document.getElementById('nextPointNum').textContent = points.length + 1;
+}
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg, success = true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (success ? '' : '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== EXPORT TO WORD =====
+async function exportToWord() {
+  if(points.length === 0) { showToast('⚠️ لا توجد نقاط لتصديرها', false); return; }
+
+  showToast('⏳ جارٍ إعداد التقرير...', true);
+
+  const day = document.getElementById('fieldDay').value.trim() || '—';
+  const dateVal = document.getElementById('fieldDate').value;
+  const zone = document.getElementById('fieldZone').value.trim() || '—';
+
+  let dateFormatted = dateVal;
+  if(dateVal) {
+    const d = new Date(dateVal);
+    dateFormatted = d.toLocaleDateString('ar-JO', {year:'numeric',month:'long',day:'numeric'});
+  }
+
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+          AlignmentType, BorderStyle, WidthType, ShadingType, HeadingLevel,
+          Header, Footer, PageNumber, NumberFormat } = docx;
+
+  const gold = "C8971A";
+  const greenDeep = "0D5C2E";
+  const greenMid = "1A7A40";
+  const lightGray = "F0F4F1";
+  const borderColor = "C5DDC9";
+
+  const border = { style: BorderStyle.SINGLE, size: 1, color: borderColor };
+  const borders = { top: border, bottom: border, left: border, right: border };
+
+  function rtlPara(children, opts = {}) {
+    return new Paragraph({
+      bidirectional: true,
+      alignment: AlignmentType.RIGHT,
+      ...opts,
+      children
+    });
+  }
+
+  // Build table rows
+  const headerRow = new TableRow({
+    tableHeader: true,
+    children: [
+      makeHeaderCell('ملاحظات', 4500),
+      makeHeaderCell('رقم النقطة', 1800),
+      makeHeaderCell('#', 720),
+    ]
+  });
+
+  function makeHeaderCell(text, width) {
+    return new TableCell({
+      borders,
+      width: { size: width, type: WidthType.DXA },
+      shading: { fill: greenDeep, type: ShadingType.CLEAR },
+      margins: { top: 100, bottom: 100, left: 140, right: 140 },
+      children: [new Paragraph({
+        bidirectional: true,
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text, bold: true, color: "FFFFFF", size: 22, font: "Arial" })]
+      })]
+    });
+  }
+
+  function makeCell(text, width, shade = false) {
+    return new TableCell({
+      borders,
+      width: { size: width, type: WidthType.DXA },
+      shading: { fill: shade ? lightGray : "FFFFFF", type: ShadingType.CLEAR },
+      margins: { top: 80, bottom: 80, left: 120, right: 120 },
+      children: [new Paragraph({
+        bidirectional: true,
+        alignment: AlignmentType.RIGHT,
+        children: [new TextRun({ text: text || '—', size: 20, font: "Arial" })]
+      })]
+    });
+  }
+
+  const dataRows = points.map((p, i) => new TableRow({
+    children: [
+      makeCell(p.notes || '—', 4500, i % 2 === 0),
+      makeCell(p.num, 1800, i % 2 === 0),
+      makeCell(String(i + 1), 720, i % 2 === 0),
+    ]
+  }));
+
+  const pointsTable = new Table({
+    width: { size: 7020, type: WidthType.DXA },
+    columnWidths: [4500, 1800, 720],
+    rows: [headerRow, ...dataRows]
+  });
+
+  const totalImages = points.reduce((s,p) => s + p.images.length, 0);
+
+  const doc = new Document({
+    styles: {
+      default: {
+        document: { run: { font: "Arial", size: 22 } }
+      }
+    },
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1440, right: 1800, bottom: 1440, left: 1800 }
+        }
+      },
+      headers: {
+        default: new Header({
+          children: [
+            new Paragraph({
+              bidirectional: true,
+              alignment: AlignmentType.CENTER,
+              border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: gold, space: 1 } },
+              children: [
+                new TextRun({ text: 'النظام المتكامل لإعداد تقارير الفرز من المصدر', bold: true, size: 20, color: greenDeep, font: "Arial" }),
+                new TextRun({ text: '  |  دائرة الدراسات البيئية', size: 18, color: "888888", font: "Arial" }),
+              ]
+            })
+          ]
+        })
+      },
+      footers: {
+        default: new Footer({
+          children: [
+            new Paragraph({
+              bidirectional: true,
+              alignment: AlignmentType.CENTER,
+              border: { top: { style: BorderStyle.SINGLE, size: 4, color: gold, space: 1 } },
+              children: [
+                new TextRun({ text: 'جميع الحقوق محفوظة © دائرة الدراسات البيئية / م. معاذ المناصير — للاستخدام: م. عمر الهدبان  |  صفحة ', size: 16, color: "888888", font: "Arial" }),
+                new TextRun({ children: [PageNumber.CURRENT], size: 16, color: greenDeep, font: "Arial" }),
+              ]
+            })
+          ]
+        })
+      },
+      children: [
+        // TITLE
+        rtlPara([
+          new TextRun({ text: 'تقرير الفرز من المصدر', bold: true, size: 40, color: greenDeep, font: "Arial" })
+        ], { alignment: AlignmentType.CENTER, spacing: { before: 240, after: 120 } }),
+
+        rtlPara([
+          new TextRun({ text: `منطقة: ${zone}  |  يوم ${day}  |  ${dateFormatted}`, size: 22, color: gold, font: "Arial" })
+        ], { alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
+
+        // INTRO TITLE
+        rtlPara([
+          new TextRun({ text: 'أولاً: مقدمة التقرير', bold: true, size: 26, color: greenDeep, font: "Arial" })
+        ], { spacing: { before: 200, after: 160 }, border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: greenMid, space: 1 } } }),
+
+        // INTRO TEXT
+        rtlPara([
+          new TextRun({
+            text: `يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر، وذلك في منطقة ${zone}، يوم ${day} الموافق ${dateFormatted}. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.`,
+            size: 22, font: "Arial"
+          })
+        ], { spacing: { after: 180 } }),
+
+        rtlPara([
+          new TextRun({
+            text: 'تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية، وتقديم التوصيات اللازمة لتحسين الأداء وتطوير منظومة إدارة النفايات.',
+            size: 22, font: "Arial"
+          })
+        ], { spacing: { after: 180 } }),
+
+        rtlPara([
+          new TextRun({
+            text: `شملت الجولة رصد ${points.length} نقطة ميدانية، وتوثيق ${totalImages} صورة ميدانية، مع تسجيل الملاحظات التفصيلية لكل نقطة. وقد تم تنفيذ الجولة وفق المنهجية المعتمدة في دائرة الدراسات البيئية، وتحت إشراف المهندس عمر الهدبان.`,
+            size: 22, font: "Arial"
+          })
+        ], { spacing: { after: 400 } }),
+
+        // TABLE TITLE
+        rtlPara([
+          new TextRun({ text: 'ثانياً: جدول النقاط الميدانية المرصودة', bold: true, size: 26, color: greenDeep, font: "Arial" })
+        ], { spacing: { before: 200, after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: greenMid, space: 1 } } }),
+
+        pointsTable,
+
+        rtlPara([], { spacing: { after: 300 } }),
+
+        // SUMMARY
+        rtlPara([
+          new TextRun({ text: 'ثالثاً: ملخص النتائج', bold: true, size: 26, color: greenDeep, font: "Arial" })
+        ], { spacing: { before: 200, after: 160 }, border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: greenMid, space: 1 } } }),
+
+        rtlPara([
+          new TextRun({ text: `• إجمالي النقاط الميدانية المرصودة: ${points.length} نقطة`, size: 22, font: "Arial" })
+        ], { spacing: { after: 120 } }),
+
+        rtlPara([
+          new TextRun({ text: `• إجمالي الصور الميدانية الموثقة: ${totalImages} صورة`, size: 22, font: "Arial" })
+        ], { spacing: { after: 120 } }),
+
+        rtlPara([
+          new TextRun({ text: `• المنطقة الجغرافية: ${zone}`, size: 22, font: "Arial" })
+        ], { spacing: { after: 120 } }),
+
+        rtlPara([
+          new TextRun({ text: `• تاريخ الجولة الميدانية: ${dateFormatted}`, size: 22, font: "Arial" })
+        ], { spacing: { after: 400 } }),
+
+        // SIGN
+        rtlPara([
+          new TextRun({ text: 'أُعدّ هذا التقرير بواسطة: م. عمر الهدبان', bold: true, size: 22, color: greenDeep, font: "Arial" })
+        ], { alignment: AlignmentType.RIGHT, spacing: { before: 200, after: 80 } }),
+
+        rtlPara([
+          new TextRun({ text: `التاريخ: ${dateFormatted}`, size: 20, color: "666666", font: "Arial" })
+        ], { alignment: AlignmentType.RIGHT, spacing: { after: 80 } }),
+
+        rtlPara([
+          new TextRun({ text: 'دائرة الدراسات البيئية / م. معاذ المناصير', size: 20, color: "666666", font: "Arial" })
+        ], { alignment: AlignmentType.RIGHT }),
+      ]
+    }]
+  });
+
+  try {
+    const buffer = await Packer.toBuffer(doc);
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `تقرير_فرز_المصدر_${zone}_${dateVal || 'بدون_تاريخ'}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('🎉 تم تصدير التقرير بنجاح!', true);
+  } catch(err) {
+    showToast('⚠️ حدث خطأ أثناء إنشاء الملف', false);
+    console.error(err);
+  }
+}
+</script>
+</body>
+</html>
