@@ -5,804 +5,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>النظام المتكامل لإعداد تقارير الفرز من المصدر</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PizZip/3.1.4/pizzip.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  :root {
-    --green-deep: #0d5c2e;
-    --green-mid: #1a7a40;
-    --green-light: #2da05a;
-    --green-pale: #e8f5ee;
-    --green-glow: #5cba84;
-    --gold: #c8971a;
-    --gold-light: #e8b84b;
-    --cream: #fdfaf4;
-    --white: #ffffff;
-    --dark: #0a1f12;
-    --gray: #6b7c70;
-    --border: #c5ddc9;
-    --shadow: 0 4px 24px rgba(13,92,46,0.12);
-    --shadow-lg: 0 12px 48px rgba(13,92,46,0.18);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Cairo', sans-serif;
-    background: var(--cream);
-    color: var(--dark);
-    min-height: 100vh;
-    direction: rtl;
-  }
-
-  /* HEADER */
-  .header {
-    background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 60%, var(--green-light) 100%);
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -20%;
-    width: 60%;
-    height: 200%;
-    background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
-  }
-
-  .header-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 28px 32px 24px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .logo-circle {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.12);
-    border: 2px solid rgba(255,255,255,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    flex-shrink: 0;
-    backdrop-filter: blur(8px);
-  }
-
-  .header-text h1 {
-    color: white;
-    font-size: 1.45rem;
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: 0.3px;
-  }
-
-  .header-text p {
-    color: rgba(255,255,255,0.7);
-    font-size: 0.82rem;
-    margin-top: 4px;
-    font-family: 'Tajawal', sans-serif;
-  }
-
-  .header-badge {
-    margin-right: auto;
-    background: rgba(200,151,26,0.2);
-    border: 1px solid rgba(200,151,26,0.5);
-    color: var(--gold-light);
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  /* MAIN */
-  .main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 28px 24px 60px;
-  }
-
-  /* SESSION INFO CARD */
-  .session-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .session-card-header {
-    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .session-card-header h2 {
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .session-card-header span {
-    font-size: 1.1rem;
-  }
-
-  .session-fields {
-    padding: 20px 24px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media (max-width: 680px) {
-    .session-fields { grid-template-columns: 1fr; }
-    .header-inner { flex-wrap: wrap; }
-    .header-badge { margin-right: 0; }
-  }
-
-  .field-group label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--green-deep);
-    margin-bottom: 6px;
-    font-family: 'Tajawal', sans-serif;
-  }
-
-  .field-group input, .field-group select {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 0.92rem;
-    color: var(--dark);
-    background: var(--green-pale);
-    transition: all 0.2s;
-    direction: rtl;
-  }
-
-  .field-group input:focus, .field-group select:focus {
-    outline: none;
-    border-color: var(--green-light);
-    box-shadow: 0 0 0 3px rgba(45,160,90,0.15);
-    background: white;
-  }
-
-  .session-save-indicator {
-    padding: 10px 24px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-    color: var(--gray);
-  }
-
-  .save-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--green-glow);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  /* STATS BAR */
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    background: white;
-    border-radius: 14px;
-    padding: 16px 20px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .stat-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    flex-shrink: 0;
-  }
-
-  .stat-icon.green { background: var(--green-pale); }
-  .stat-icon.gold { background: #fdf3dc; }
-  .stat-icon.blue { background: #e8f0fe; }
-
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--gray);
-    font-family: 'Tajawal', sans-serif;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--green-deep);
-    line-height: 1;
-  }
-
-  /* POINT ENTRY CARD */
-  .entry-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .entry-card-header {
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .entry-card-header h2 {
-    color: white;
-    font-size: 1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .point-counter {
-    background: rgba(255,255,255,0.25);
-    color: white;
-    padding: 4px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 700;
-  }
-
-  .entry-body {
-    padding: 24px;
-  }
-
-  .entry-row {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  @media (max-width: 580px) {
-    .entry-row { grid-template-columns: 1fr; }
-    .stats-bar { grid-template-columns: 1fr; }
-  }
-
-  textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 0.92rem;
-    resize: vertical;
-    min-height: 80px;
-    direction: rtl;
-    color: var(--dark);
-    background: var(--green-pale);
-    transition: all 0.2s;
-  }
-
-  textarea:focus {
-    outline: none;
-    border-color: var(--green-light);
-    box-shadow: 0 0 0 3px rgba(45,160,90,0.15);
-    background: white;
-  }
-
-  /* IMAGE UPLOAD */
-  .image-section {
-    margin-bottom: 20px;
-  }
-
-  .image-section label.section-label {
-    display: block;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--green-deep);
-    margin-bottom: 10px;
-    font-family: 'Tajawal', sans-serif;
-  }
-
-  .image-upload-area {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  @media (max-width: 480px) {
-    .image-upload-area { grid-template-columns: 1fr; }
-  }
-
-  .upload-btn {
-    position: relative;
-    overflow: hidden;
-    background: var(--green-pale);
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .upload-btn:hover {
-    border-color: var(--green-light);
-    background: #d4eedd;
-  }
-
-  .upload-btn input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-
-  .upload-btn .icon { font-size: 1.8rem; }
-  .upload-btn .label { font-size: 0.82rem; font-weight: 600; color: var(--green-deep); }
-  .upload-btn .sub { font-size: 0.73rem; color: var(--gray); }
-
-  .camera-btn {
-    background: linear-gradient(135deg, #1a4e8a, #2563eb);
-    border: none;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.25s;
-  }
-
-  .camera-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .camera-btn .icon { font-size: 1.8rem; }
-  .camera-btn .label { font-size: 0.82rem; font-weight: 600; }
-  .camera-btn .sub { font-size: 0.73rem; opacity: 0.8; }
-
-  .preview-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 12px;
-  }
-
-  .preview-thumb {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    object-fit: cover;
-    border: 2px solid var(--border);
-    position: relative;
-  }
-
-  .thumb-wrap {
-    position: relative;
-    display: inline-block;
-  }
-
-  .thumb-remove {
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    width: 20px;
-    height: 20px;
-    background: #e53e3e;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
-
-  /* ENTRY ACTIONS */
-  .entry-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    padding: 12px 28px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: all 0.25s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--green-mid), var(--green-deep));
-    color: white;
-    box-shadow: 0 4px 14px rgba(26,122,64,0.35);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(26,122,64,0.45);
-  }
-
-  .btn-secondary {
-    background: var(--green-pale);
-    color: var(--green-deep);
-    border: 1.5px solid var(--border);
-  }
-
-  .btn-secondary:hover {
-    background: #d4eedd;
-    border-color: var(--green-light);
-  }
-
-  .btn-export {
-    background: linear-gradient(135deg, var(--gold), var(--gold-light));
-    color: white;
-    box-shadow: 0 4px 14px rgba(200,151,26,0.35);
-    margin-right: auto;
-  }
-
-  .btn-export:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(200,151,26,0.45);
-  }
-
-  .btn-danger {
-    background: #fff5f5;
-    color: #c53030;
-    border: 1.5px solid #fed7d7;
-  }
-
-  .btn-danger:hover { background: #fed7d7; }
-
-  /* POINTS TABLE */
-  .points-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .points-card-header {
-    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .points-card-header h2 {
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .points-table-wrap {
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-  }
-
-  thead th {
-    background: var(--green-pale);
-    color: var(--green-deep);
-    font-weight: 700;
-    padding: 12px 16px;
-    text-align: right;
-    border-bottom: 2px solid var(--border);
-    white-space: nowrap;
-    font-family: 'Tajawal', sans-serif;
-  }
-
-  tbody tr {
-    border-bottom: 1px solid #f0f4f1;
-    transition: background 0.15s;
-  }
-
-  tbody tr:hover { background: var(--green-pale); }
-
-  tbody td {
-    padding: 11px 16px;
-    color: var(--dark);
-    vertical-align: middle;
-  }
-
-  .td-num {
-    font-weight: 700;
-    color: var(--green-deep);
-    font-size: 1rem;
-  }
-
-  .td-img-count {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--green-pale);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    color: var(--green-deep);
-    font-weight: 600;
-  }
-
-  .td-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #c53030;
-    font-size: 1rem;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: background 0.15s;
-  }
-
-  .td-delete:hover { background: #fff5f5; }
-
-  .empty-state {
-    text-align: center;
-    padding: 48px 20px;
-    color: var(--gray);
-  }
-
-  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-  .empty-state p { font-size: 0.9rem; }
-
-  /* BOTTOM BAR */
-  .bottom-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 24px;
-    border-top: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--green-deep);
-    color: white;
-    padding: 12px 28px;
-    border-radius: 30px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 999;
-    white-space: nowrap;
-  }
-
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); }
-
-  /* CAMERA MODAL */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-
-  .modal-overlay.active { display: flex; }
-
-  .camera-modal {
-    background: var(--dark);
-    border-radius: 20px;
-    overflow: hidden;
-    width: min(480px, 95vw);
-    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
-  }
-
-  .camera-modal-header {
-    padding: 16px 20px;
-    background: rgba(255,255,255,0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .camera-modal-header h3 { color: white; font-size: 1rem; }
-
-  .close-btn {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.1rem;
-  }
-
-  #videoEl {
-    width: 100%;
-    display: block;
-    max-height: 320px;
-    object-fit: cover;
-  }
-
-  .camera-controls {
-    padding: 16px 20px;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
-
-  .capture-btn {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: white;
-    border: 4px solid rgba(255,255,255,0.3);
-    cursor: pointer;
-    transition: transform 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-  }
-
-  .capture-btn:hover { transform: scale(1.05); }
-  .capture-btn:active { transform: scale(0.95); }
-
-  #canvasEl { display: none; }
-
-  /* FOOTER */
-  .footer {
-    text-align: center;
-    padding: 20px;
-    border-top: 1px solid var(--border);
-    margin-top: 12px;
-    font-size: 0.75rem;
-    color: var(--gray);
-    font-family: 'Tajawal', sans-serif;
-  }
-
-  .footer span {
-    color: var(--green-deep);
-    font-weight: 700;
-  }
-
-  /* DOWNLOAD MODAL */
-  .download-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 2000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(6px);
-  }
-  .download-overlay.active { display: flex; }
-  .download-modal {
-    background: white;
-    border-radius: 20px;
-    padding: 40px 36px;
-    width: min(420px, 92vw);
-    text-align: center;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.25);
-    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
-  }
-  .download-modal .dl-icon { font-size: 3.5rem; margin-bottom: 12px; }
-  .download-modal h3 { font-size: 1.2rem; font-weight: 700; color: var(--green-deep); margin-bottom: 8px; }
-  .download-modal p  { font-size: 0.85rem; color: var(--gray); margin-bottom: 24px; font-family:'Tajawal',sans-serif; }
-  .btn-download {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: linear-gradient(135deg, var(--green-mid), var(--green-deep));
-    color: white; border: none; border-radius: 12px;
-    padding: 14px 32px; font-family:'Cairo',sans-serif; font-size: 1rem;
-    font-weight: 700; cursor: pointer; width: 100%; justify-content: center;
-    box-shadow: 0 4px 16px rgba(26,122,64,0.35); transition: all 0.2s;
-    margin-bottom: 10px;
-  }
-  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(26,122,64,0.45); }
-  .btn-close-dl {
-    background: none; border: 1.5px solid var(--border); border-radius: 10px;
-    padding: 10px 28px; font-family:'Cairo',sans-serif; font-size: 0.88rem;
-    color: var(--gray); cursor: pointer; width: 100%; transition: all 0.2s;
-  }
-  .btn-close-dl:hover { background: var(--green-pale); color: var(--green-deep); }
-  .progress-bar-wrap {
-    background: var(--border);
-    border-radius: 4px;
-    height: 6px;
-    overflow: hidden;
-    margin-top: 8px;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green-mid), var(--green-glow));
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
+:root {
+  --gd:#0d5c2e;--gm:#1a7a40;--gl:#2da05a;--gp:#e8f5ee;--gg:#5cba84;
+  --gold:#c8971a;--gold-l:#e8b84b;--cream:#fdfaf4;
+  --dark:#0a1f12;--gray:#6b7c70;--border:#c5ddc9;
+  --sh:0 4px 24px rgba(13,92,46,.12);--shl:0 12px 48px rgba(13,92,46,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;direction:rtl}
+.header{background:linear-gradient(135deg,var(--gd) 0%,var(--gm) 60%,var(--gl) 100%);position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;bottom:0;right:0;width:100%;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-l),var(--gold))}
+.header-inner{max-width:1100px;margin:0 auto;padding:28px 32px 24px;display:flex;align-items:center;gap:20px;position:relative;z-index:1}
+.logo-circle{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.header-text h1{color:#fff;font-size:1.4rem;font-weight:700;line-height:1.3}
+.header-text p{color:rgba(255,255,255,.7);font-size:.82rem;margin-top:4px;font-family:'Tajawal',sans-serif}
+.header-badge{margin-right:auto;background:rgba(200,151,26,.2);border:1px solid rgba(200,151,26,.5);color:var(--gold-l);padding:6px 16px;border-radius:20px;font-size:.78rem;font-weight:600;white-space:nowrap}
+@media(max-width:680px){.header-inner{flex-wrap:wrap}.header-badge{margin-right:0}}
+.main{max-width:1100px;margin:0 auto;padding:28px 24px 60px}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:14px;padding:16px 20px;border:1px solid var(--border);box-shadow:var(--sh);display:flex;align-items:center;gap:14px}
+.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.stat-icon.g{background:var(--gp)}.stat-icon.gold{background:#fdf3dc}.stat-icon.b{background:#e8f0fe}
+.stat-label{font-size:.75rem;color:var(--gray);font-family:'Tajawal',sans-serif}
+.stat-value{font-size:1.5rem;font-weight:700;color:var(--gd);line-height:1}
+@media(max-width:580px){.stats-bar{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:16px;box-shadow:var(--sh);border:1px solid var(--border);overflow:hidden;margin-bottom:24px}
+.card-hd{padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.card-hd.green{background:linear-gradient(135deg,var(--gd),var(--gm))}
+.card-hd.gold-hd{background:linear-gradient(135deg,var(--gold),var(--gold-l))}
+.card-hd h2{color:#fff;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.badge{background:rgba(255,255,255,.25);color:#fff;padding:4px 14px;border-radius:20px;font-size:.85rem;font-weight:700}
+.session-fields{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:680px){.session-fields{grid-template-columns:1fr}}
+.field-group label{display:block;font-size:.8rem;font-weight:600;color:var(--gd);margin-bottom:6px;font-family:'Tajawal',sans-serif}
+.field-group input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Cairo',sans-serif;font-size:.92rem;color:var(--dark);background:var(--gp);transition:all .2s;direction:rtl}
+.field-group input:focus{outline:none;border-color:var(--gl);box-shadow:0 0 0 3px rgba(45,160,90,.15);background:#fff}
+.save-ind{padding:10px 24px 16px;display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--gray)}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--gg);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.entry-body{padding:24px}
+.entry-row{display:grid;grid-template-columns:180px 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:580px){.entry-row{grid-template-columns:1fr}}
+textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Cairo',sans-serif;font-size:.92rem;resize:vertical;min-height:80px;direction:rtl;color:var(--dark);background:var(--gp);transition:all .2s}
+textarea:focus{outline:none;border-color:var(--gl);box-shadow:0 0 0 3px rgba(45,160,90,.15);background:#fff}
+.img-section{margin-bottom:20px}
+.sec-label{display:block;font-size:.82rem;font-weight:700;color:var(--gd);margin-bottom:10px;font-family:'Tajawal',sans-serif}
+.img-upload-area{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.img-upload-area{grid-template-columns:1fr}}
+.upload-btn{position:relative;overflow:hidden;background:var(--gp);border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:8px}
+.upload-btn:hover{border-color:var(--gl);background:#d4eedd}
+.upload-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-btn .ico{font-size:1.8rem}.upload-btn .lbl{font-size:.82rem;font-weight:600;color:var(--gd)}.upload-btn .sub{font-size:.73rem;color:var(--gray)}
+.camera-btn{background:linear-gradient(135deg,#1a4e8a,#2563eb);border:none;border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .25s}
+.camera-btn:hover{opacity:.9;transform:translateY(-1px)}
+.camera-btn .ico{font-size:1.8rem}.camera-btn .lbl{font-size:.82rem;font-weight:600}.camera-btn .sub{font-size:.73rem;opacity:.8}
+.preview-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.thumb-wrap{position:relative;display:inline-block}
+.preview-thumb{width:80px;height:80px;border-radius:10px;object-fit:cover;border:2px solid var(--border)}
+.thumb-remove{position:absolute;top:-6px;left:-6px;width:20px;height:20px;background:#e53e3e;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.entry-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,var(--gm),var(--gd));color:#fff;box-shadow:0 4px 14px rgba(26,122,64,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,122,64,.45)}
+.btn-secondary{background:var(--gp);color:var(--gd);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:#d4eedd;border-color:var(--gl)}
+.btn-export{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;box-shadow:0 4px 14px rgba(200,151,26,.35);margin-right:auto}
+.btn-export:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(200,151,26,.45)}
+.btn-danger{background:#fff5f5;color:#c53030;border:1.5px solid #fed7d7}
+.btn-danger:hover{background:#fed7d7}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.875rem}
+thead th{background:var(--gp);color:var(--gd);font-weight:700;padding:12px 16px;text-align:right;border-bottom:2px solid var(--border);white-space:nowrap;font-family:'Tajawal',sans-serif}
+tbody tr{border-bottom:1px solid #f0f4f1;transition:background .15s}
+tbody tr:hover{background:var(--gp)}
+tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
+.td-num{font-weight:700;color:var(--gd);font-size:1rem}
+.td-img{display:inline-flex;align-items:center;gap:4px;background:var(--gp);padding:3px 10px;border-radius:20px;font-size:.78rem;color:var(--gd);font-weight:600}
+.td-del{background:none;border:none;cursor:pointer;color:#c53030;font-size:1rem;padding:4px 8px;border-radius:6px;transition:background .15s}
+.td-del:hover{background:#fff5f5}
+.empty-state{text-align:center;padding:48px 20px;color:var(--gray)}
+.empty-state .ico{font-size:3rem;margin-bottom:12px}
+.bottom-bar{display:flex;align-items:center;gap:12px;padding:20px 24px;border-top:1px solid var(--border);flex-wrap:wrap;justify-content:flex-end}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gd);color:#fff;padding:12px 28px;border-radius:30px;font-size:.875rem;font-weight:600;box-shadow:var(--shl);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.overlay.active{display:flex}
+.dl-modal{background:#fff;border-radius:20px;padding:40px 36px;width:min(420px,92vw);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.dl-ico{font-size:3.5rem;margin-bottom:12px}
+.dl-modal h3{font-size:1.2rem;font-weight:700;color:var(--gd);margin-bottom:8px}
+.dl-modal p{font-size:.85rem;color:var(--gray);margin-bottom:24px;font-family:'Tajawal',sans-serif}
+.btn-dl{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:linear-gradient(135deg,var(--gm),var(--gd));color:#fff;border:none;border-radius:12px;padding:15px;font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,122,64,.35);transition:all .2s;margin-bottom:10px}
+.btn-dl:hover{transform:translateY(-2px)}
+.btn-cl{background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px 28px;font-family:'Cairo',sans-serif;font-size:.88rem;color:var(--gray);cursor:pointer;width:100%;transition:all .2s}
+.btn-cl:hover{background:var(--gp);color:var(--gd)}
+.cam-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.cam-overlay.active{display:flex}
+.cam-modal{background:#0a1f12;border-radius:20px;overflow:hidden;width:min(480px,95vw);box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.cam-hd{padding:16px 20px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.cam-hd h3{color:#fff;font-size:1rem}
+.close-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem}
+#videoEl{width:100%;display:block;max-height:320px;object-fit:cover}
+#canvasEl{display:none}
+.cam-ctrl{padding:16px 20px;display:flex;justify-content:center}
+.cap-btn{width:64px;height:64px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.3);cursor:pointer;transition:transform .15s;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.cap-btn:hover{transform:scale(1.05)}.cap-btn:active{transform:scale(.95)}
+.footer{text-align:center;padding:20px;border-top:1px solid var(--border);margin-top:12px;font-size:.75rem;color:var(--gray);font-family:'Tajawal',sans-serif}
+.footer span{color:var(--gd);font-weight:700}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="header-inner">
     <div class="logo-circle">♻️</div>
@@ -810,616 +125,358 @@
       <h1>النظام المتكامل لإعداد تقارير الفرز من المصدر</h1>
       <p>دائرة الدراسات البيئية — م. معاذ المناصير</p>
     </div>
-    <div class="header-badge">🌿 إصدار 1.0</div>
+    <div class="header-badge">🌿 إصدار 2.0</div>
   </div>
 </header>
 
 <div class="main">
-
-  <!-- STATS BAR -->
   <div class="stats-bar">
-    <div class="stat-card">
-      <div class="stat-icon green">📍</div>
-      <div>
-        <div class="stat-label">إجمالي النقاط المرصودة</div>
-        <div class="stat-value" id="statTotal">0</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon gold">📸</div>
-      <div>
-        <div class="stat-label">إجمالي الصور الملتقطة</div>
-        <div class="stat-value" id="statPhotos">0</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon blue">🕐</div>
-      <div>
-        <div class="stat-label">وقت بدء الجلسة</div>
-        <div class="stat-value" id="statTime" style="font-size:1rem;">—</div>
-      </div>
-    </div>
+    <div class="stat-card"><div class="stat-icon g">📍</div><div><div class="stat-label">إجمالي النقاط</div><div class="stat-value" id="statTotal">0</div></div></div>
+    <div class="stat-card"><div class="stat-icon gold">📸</div><div><div class="stat-label">إجمالي الصور</div><div class="stat-value" id="statPhotos">0</div></div></div>
+    <div class="stat-card"><div class="stat-icon b">🕐</div><div><div class="stat-label">وقت بدء الجلسة</div><div class="stat-value" id="statTime" style="font-size:1rem">—</div></div></div>
   </div>
 
-  <!-- SESSION INFO -->
-  <div class="session-card">
-    <div class="session-card-header">
-      <span>📋</span>
-      <h2>بيانات الجلسة الميدانية</h2>
-    </div>
+  <div class="card">
+    <div class="card-hd green"><h2>📋 بيانات الجلسة الميدانية</h2></div>
     <div class="session-fields">
-      <div class="field-group">
-        <label>📅 اليوم</label>
-        <input type="text" id="fieldDay" placeholder="مثال: الأحد" />
-      </div>
-      <div class="field-group">
-        <label>🗓️ التاريخ</label>
-        <input type="date" id="fieldDate" />
-      </div>
-      <div class="field-group">
-        <label>📍 المنطقة</label>
-        <input type="text" id="fieldZone" placeholder="مثال: حي الياسمين" />
-      </div>
+      <div class="field-group"><label>📅 اليوم</label><input type="text" id="fieldDay" placeholder="مثال: الأحد"/></div>
+      <div class="field-group"><label>🗓️ التاريخ</label><input type="date" id="fieldDate"/></div>
+      <div class="field-group"><label>📍 المنطقة</label><input type="text" id="fieldZone" placeholder="مثال: حي الياسمين"/></div>
     </div>
-    <div class="session-save-indicator">
-      <div class="save-dot"></div>
-      تُحفظ بيانات الجلسة تلقائياً مع كل نقطة جديدة
-    </div>
+    <div class="save-ind"><div class="save-dot"></div>تُحفظ بيانات الجلسة تلقائياً مع كل نقطة</div>
   </div>
 
-  <!-- ENTRY CARD -->
-  <div class="entry-card">
-    <div class="entry-card-header">
+  <div class="card">
+    <div class="card-hd gold-hd">
       <h2>➕ إضافة نقطة رصد جديدة</h2>
-      <div class="point-counter">نقطة رقم: <span id="nextPointNum">1</span></div>
+      <div class="badge">نقطة رقم: <span id="nextNum">1</span></div>
     </div>
     <div class="entry-body">
       <div class="entry-row">
-        <div class="field-group">
-          <label>🔢 رقم النقطة</label>
-          <input type="text" id="pointNum" placeholder="P-001" />
-        </div>
-        <div class="field-group">
-          <label>📝 الملاحظات الميدانية</label>
-          <textarea id="pointNotes" placeholder="أدخل الملاحظات التفصيلية للنقطة... (نوع المخلفات، الحالة، التوصيات...)"></textarea>
-        </div>
+        <div class="field-group"><label>🔢 رقم النقطة</label><input type="text" id="pointNum" placeholder="P-001"/></div>
+        <div class="field-group"><label>📝 الملاحظات الميدانية</label><textarea id="pointNotes" placeholder="أدخل الملاحظات التفصيلية..."></textarea></div>
       </div>
-
-      <div class="image-section">
-        <label class="section-label">📷 رفع الصور الميدانية</label>
-        <div class="image-upload-area">
+      <div class="img-section">
+        <label class="sec-label">📷 رفع الصور الميدانية</label>
+        <div class="img-upload-area">
           <label class="upload-btn">
-            <input type="file" id="studioUpload" accept="image/*" multiple onchange="handleStudioUpload(event)">
-            <div class="icon">🖼️</div>
-            <div class="label">رفع من الاستديو</div>
-            <div class="sub">JPG, PNG, WEBP — متعدد</div>
+            <input type="file" id="studioUpload" accept="image/*" multiple onchange="handleUpload(event)">
+            <div class="ico">🖼️</div><div class="lbl">رفع من الاستديو</div><div class="sub">JPG, PNG — متعدد</div>
           </label>
           <button class="camera-btn" onclick="openCamera()">
-            <div class="icon">📸</div>
-            <div class="label">التقاط بالكاميرا</div>
-            <div class="sub">تصوير مباشر</div>
+            <div class="ico">📸</div><div class="lbl">التقاط بالكاميرا</div><div class="sub">تصوير مباشر</div>
           </button>
         </div>
         <div class="preview-grid" id="previewGrid"></div>
       </div>
-
       <div class="entry-actions">
         <button class="btn btn-primary" onclick="savePoint()">💾 حفظ النقطة</button>
-        <button class="btn btn-secondary" onclick="saveAndAddNew()">➕ حفظ وإضافة جديدة</button>
+        <button class="btn btn-secondary" onclick="saveAndNew()">➕ حفظ وإضافة جديدة</button>
         <button class="btn btn-danger" onclick="resetEntry()">🗑️ مسح الإدخال</button>
-        <button class="btn btn-export" onclick="exportToWord()" id="exportBtn">📄 تصدير تقرير Word</button>
+        <button class="btn btn-export" onclick="exportWord()">📄 تصدير تقرير Word</button>
       </div>
     </div>
   </div>
 
-  <!-- POINTS TABLE -->
-  <div class="points-card">
-    <div class="points-card-header">
+  <div class="card">
+    <div class="card-hd green">
       <h2>📊 جدول النقاط المرصودة</h2>
-      <div style="color:rgba(255,255,255,0.7);font-size:0.8rem;" id="tableSubtitle">لا توجد نقاط بعد</div>
+      <div style="color:rgba(255,255,255,.7);font-size:.8rem" id="tblSub">لا توجد نقاط بعد</div>
     </div>
-    <div class="points-table-wrap">
+    <div class="tbl-wrap">
       <table>
-        <thead>
-          <tr>
-            <th style="width:60px;">#</th>
-            <th>رقم النقطة</th>
-            <th>الملاحظات الميدانية</th>
-            <th>الصور</th>
-            <th>الوقت</th>
-            <th style="width:50px;">حذف</th>
-          </tr>
-        </thead>
-        <tbody id="pointsBody">
-          <tr>
-            <td colspan="6">
-              <div class="empty-state">
-                <div class="icon">🗂️</div>
-                <p>لم يتم تسجيل أي نقطة بعد. ابدأ بإضافة أول نقطة رصد.</p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+        <thead><tr><th style="width:55px">#</th><th>رقم النقطة</th><th>الملاحظات</th><th>الصور</th><th>الوقت</th><th style="width:50px">حذف</th></tr></thead>
+        <tbody id="pointsBody"><tr><td colspan="6"><div class="empty-state"><div class="ico">🗂️</div><p>ابدأ بإضافة أول نقطة رصد</p></div></td></tr></tbody>
       </table>
     </div>
-    <div class="bottom-bar" style="justify-content:flex-end;">
-      <button class="btn btn-danger" onclick="clearAll()" id="clearAllBtn" style="display:none;">🗑️ مسح جميع النقاط</button>
+    <div class="bottom-bar">
+      <button class="btn btn-danger" onclick="clearAll()" id="clearBtn" style="display:none">🗑️ مسح جميع النقاط</button>
     </div>
   </div>
-
 </div>
 
-<!-- FOOTER -->
-<div class="footer">
-  جميع الحقوق محفوظة © <span>دائرة الدراسات البيئية / م. معاذ المناصير</span> — للاستخدام المهني بواسطة <span>م. عمر الهدبان</span>
-</div>
+<div class="footer">جميع الحقوق محفوظة © <span>دائرة الدراسات البيئية / م. معاذ المناصير</span> — للاستخدام: <span>م. عمر الهدبان</span></div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <!-- DOWNLOAD MODAL -->
-<div class="download-overlay" id="downloadModal">
-  <div class="download-modal">
-    <div class="dl-icon">✅</div>
+<div class="overlay" id="dlOverlay">
+  <div class="dl-modal">
+    <div class="dl-ico">✅</div>
     <h3>تم إعداد التقرير بنجاح!</h3>
-    <p id="dlModalDesc">الملف جاهز للتحميل على جهازك</p>
-    <button class="btn-download" id="dlBtn" onclick="triggerDownload()">⬇️ تحميل ملف Word</button>
-    <button class="btn-close-dl" onclick="closeDownloadModal()">إغلاق</button>
+    <p id="dlDesc">الملف جاهز للتحميل</p>
+    <button class="btn-dl" onclick="doDownload()">⬇️ تحميل ملف Word الآن</button>
+    <button class="btn-cl" onclick="closeDl()">إغلاق</button>
   </div>
 </div>
 
 <!-- CAMERA MODAL -->
-<div class="modal-overlay" id="cameraModal">
-  <div class="camera-modal">
-    <div class="camera-modal-header">
-      <h3>📸 التقاط صورة ميدانية</h3>
-      <button class="close-btn" onclick="closeCamera()">✕</button>
-    </div>
+<div class="cam-overlay" id="camOverlay">
+  <div class="cam-modal">
+    <div class="cam-hd"><h3>📸 التقاط صورة ميدانية</h3><button class="close-btn" onclick="closeCamera()">✕</button></div>
     <video id="videoEl" autoplay playsinline></video>
     <canvas id="canvasEl"></canvas>
-    <div class="camera-controls">
-      <button class="capture-btn" onclick="capturePhoto()" title="التقاط صورة">📸</button>
-    </div>
+    <div class="cam-ctrl"><button class="cap-btn" onclick="capturePhoto()">📸</button></div>
   </div>
 </div>
 
 <script>
-// ===== STATE =====
-let points = [];
-let currentImages = []; // {dataUrl, name}
-let videoStream = null;
-let sessionStart = null;
+// ── STATE ──
+var points = [];
+var curImgs = [];
+var vidStream = null;
+var pendingBlob = null;
+var pendingName = '';
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  const today = new Date();
-  document.getElementById('fieldDate').value = today.toISOString().split('T')[0];
-  const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-  document.getElementById('fieldDay').value = days[today.getDay()];
-  sessionStart = today.toLocaleTimeString('ar-JO', {hour:'2-digit',minute:'2-digit'});
-  document.getElementById('statTime').textContent = sessionStart;
-  updateNextPointNum();
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', function() {
+  var now = new Date();
+  document.getElementById('fieldDate').value = now.toISOString().split('T')[0];
+  var days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  document.getElementById('fieldDay').value = days[now.getDay()];
+  document.getElementById('statTime').textContent =
+    now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
+  updateNextNum();
 });
 
-// ===== STUDIO UPLOAD =====
-function handleStudioUpload(e) {
-  const files = Array.from(e.target.files);
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      currentImages.push({ dataUrl: ev.target.result, name: file.name });
-      renderPreviews();
-    };
-    reader.readAsDataURL(file);
+// ── UPLOAD ──
+function handleUpload(e) {
+  Array.from(e.target.files).forEach(function(f) {
+    var r = new FileReader();
+    r.onload = function(ev) { curImgs.push({dataUrl:ev.target.result,name:f.name}); renderPreviews(); };
+    r.readAsDataURL(f);
   });
   e.target.value = '';
 }
 
-// ===== CAMERA =====
-async function openCamera() {
-  try {
-    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-    document.getElementById('videoEl').srcObject = videoStream;
-    document.getElementById('cameraModal').classList.add('active');
-  } catch(err) {
-    showToast('⚠️ تعذر الوصول للكاميرا. تأكد من منح الصلاحية.', false);
-  }
+// ── CAMERA ──
+function openCamera() {
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
+    .then(function(s) {
+      vidStream = s;
+      document.getElementById('videoEl').srcObject = s;
+      document.getElementById('camOverlay').classList.add('active');
+    }).catch(function() { showToast('⚠️ تعذر الوصول للكاميرا'); });
 }
-
 function closeCamera() {
-  if(videoStream) videoStream.getTracks().forEach(t => t.stop());
-  videoStream = null;
-  document.getElementById('cameraModal').classList.remove('active');
+  if(vidStream) vidStream.getTracks().forEach(function(t){t.stop();});
+  vidStream = null;
+  document.getElementById('camOverlay').classList.remove('active');
 }
-
 function capturePhoto() {
-  const video = document.getElementById('videoEl');
-  const canvas = document.getElementById('canvasEl');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-  const name = 'camera_' + Date.now() + '.jpg';
-  currentImages.push({ dataUrl, name });
+  var v = document.getElementById('videoEl');
+  var c = document.getElementById('canvasEl');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  var dataUrl = c.toDataURL('image/jpeg',.9);
+  curImgs.push({dataUrl:dataUrl, name:'camera_'+Date.now()+'.jpg'});
   renderPreviews();
-  showToast('✅ تم التقاط الصورة بنجاح');
+  showToast('✅ تم التقاط الصورة');
   closeCamera();
 }
 
-// ===== PREVIEWS =====
+// ── PREVIEWS ──
 function renderPreviews() {
-  const grid = document.getElementById('previewGrid');
-  grid.innerHTML = '';
-  currentImages.forEach((img, idx) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'thumb-wrap';
-    wrap.innerHTML = `
-      <img src="${img.dataUrl}" class="preview-thumb" title="${img.name}">
-      <button class="thumb-remove" onclick="removeImage(${idx})">✕</button>`;
-    grid.appendChild(wrap);
+  var g = document.getElementById('previewGrid');
+  g.innerHTML = '';
+  curImgs.forEach(function(img,i) {
+    var w = document.createElement('div');
+    w.className = 'thumb-wrap';
+    w.innerHTML = '<img src="'+img.dataUrl+'" class="preview-thumb"><button class="thumb-remove" onclick="removeImg('+i+')">✕</button>';
+    g.appendChild(w);
   });
 }
+function removeImg(i) { curImgs.splice(i,1); renderPreviews(); }
 
-function removeImage(idx) {
-  currentImages.splice(idx, 1);
-  renderPreviews();
-}
-
-// ===== SAVE POINT =====
+// ── SAVE POINT ──
 function savePoint() {
-  const num = document.getElementById('pointNum').value.trim();
-  const notes = document.getElementById('pointNotes').value.trim();
-  if(!num) { showToast('⚠️ يرجى إدخال رقم النقطة', false); return; }
-
-  // save session info
-  const day = document.getElementById('fieldDay').value.trim();
-  const date = document.getElementById('fieldDate').value;
-  const zone = document.getElementById('fieldZone').value.trim();
-
-  const point = {
-    id: Date.now(),
-    num,
-    notes,
-    images: [...currentImages],
-    time: new Date().toLocaleTimeString('ar-JO', {hour:'2-digit',minute:'2-digit'}),
-    day, date, zone
-  };
-
-  points.push(point);
-  updateTable();
-  updateStats();
-  showToast(`✅ تم حفظ النقطة "${num}" بنجاح`);
+  var num = document.getElementById('pointNum').value.trim();
+  if(!num) { showToast('⚠️ يرجى إدخال رقم النقطة'); return false; }
+  points.push({
+    id: Date.now(), num: num,
+    notes: document.getElementById('pointNotes').value.trim(),
+    images: curImgs.slice(),
+    time: new Date().toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'}),
+    day:  document.getElementById('fieldDay').value.trim(),
+    date: document.getElementById('fieldDate').value,
+    zone: document.getElementById('fieldZone').value.trim()
+  });
+  updateTable(); updateStats(); updateNextNum();
+  showToast('✅ تم حفظ النقطة "'+num+'"');
   resetEntry();
-  updateNextPointNum();
   return true;
 }
-
-function saveAndAddNew() {
-  if(savePoint()) {
-    setTimeout(() => document.getElementById('pointNum').focus(), 100);
-  }
-}
-
+function saveAndNew() { if(savePoint()) setTimeout(function(){document.getElementById('pointNum').focus();},80); }
 function resetEntry() {
   document.getElementById('pointNum').value = '';
   document.getElementById('pointNotes').value = '';
   document.getElementById('previewGrid').innerHTML = '';
-  currentImages = [];
+  curImgs = [];
 }
-
 function removePoint(id) {
-  points = points.filter(p => p.id !== id);
-  updateTable();
-  updateStats();
-  updateNextPointNum();
-  showToast('🗑️ تم حذف النقطة');
+  points = points.filter(function(p){return p.id!==id;});
+  updateTable(); updateStats(); updateNextNum(); showToast('🗑️ تم الحذف');
 }
-
 function clearAll() {
-  if(confirm('هل أنت متأكد من مسح جميع النقاط؟')) {
-    points = [];
-    updateTable();
-    updateStats();
-    updateNextPointNum();
-    showToast('🗑️ تم مسح جميع النقاط');
-  }
+  if(confirm('مسح جميع النقاط؟')) { points=[]; updateTable(); updateStats(); updateNextNum(); showToast('🗑️ تم المسح'); }
 }
 
-// ===== UPDATE TABLE =====
+// ── TABLE ──
 function updateTable() {
-  const tbody = document.getElementById('pointsBody');
-  const subtitle = document.getElementById('tableSubtitle');
-  const clearBtn = document.getElementById('clearAllBtn');
-
-  if(points.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">🗂️</div><p>لم يتم تسجيل أي نقطة بعد. ابدأ بإضافة أول نقطة رصد.</p></div></td></tr>`;
-    subtitle.textContent = 'لا توجد نقاط بعد';
-    clearBtn.style.display = 'none';
+  var b = document.getElementById('pointsBody');
+  var s = document.getElementById('tblSub');
+  document.getElementById('clearBtn').style.display = points.length ? '' : 'none';
+  if(!points.length) {
+    s.textContent='لا توجد نقاط بعد';
+    b.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="ico">🗂️</div><p>ابدأ بإضافة أول نقطة رصد</p></div></td></tr>';
     return;
   }
-
-  subtitle.textContent = `${points.length} نقطة مسجلة`;
-  clearBtn.style.display = '';
-  tbody.innerHTML = points.map((p,i) => `
-    <tr>
-      <td class="td-num">${i+1}</td>
-      <td><strong>${p.num}</strong></td>
-      <td style="max-width:320px;white-space:pre-wrap;font-size:0.82rem;">${p.notes || '<span style="color:#999">—</span>'}</td>
-      <td><span class="td-img-count">📸 ${p.images.length}</span></td>
-      <td style="font-size:0.8rem;color:var(--gray);">${p.time}</td>
-      <td><button class="td-delete" onclick="removePoint(${p.id})">🗑️</button></td>
-    </tr>`).join('');
+  s.textContent = points.length+' نقطة مسجلة';
+  b.innerHTML = points.map(function(p,i){
+    return '<tr><td class="td-num">'+(i+1)+'</td><td><strong>'+p.num+'</strong></td><td style="max-width:300px;font-size:.82rem;white-space:pre-wrap">'+(p.notes||'<span style="color:#999">—</span>')+'</td><td><span class="td-img">📸 '+p.images.length+'</span></td><td style="font-size:.8rem;color:var(--gray)">'+p.time+'</td><td><button class="td-del" onclick="removePoint('+p.id+')">🗑️</button></td></tr>';
+  }).join('');
 }
-
 function updateStats() {
   document.getElementById('statTotal').textContent = points.length;
-  const totalPhotos = points.reduce((s,p) => s + p.images.length, 0);
-  document.getElementById('statPhotos').textContent = totalPhotos;
+  document.getElementById('statPhotos').textContent = points.reduce(function(s,p){return s+p.images.length;},0);
+}
+function updateNextNum() { document.getElementById('nextNum').textContent = points.length+1; }
+
+// ── TOAST ──
+var toastT;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(function(){t.classList.remove('show');},3000);
 }
 
-function updateNextPointNum() {
-  document.getElementById('nextPointNum').textContent = points.length + 1;
+// ── DOWNLOAD ──
+function closeDl() { document.getElementById('dlOverlay').classList.remove('active'); }
+function doDownload() {
+  if(!pendingBlob) return;
+  var url = URL.createObjectURL(pendingBlob);
+  var a = document.createElement('a');
+  a.href = url; a.download = pendingName;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },300);
+  showToast('🎉 تم تحميل الملف بنجاح!');
+  closeDl();
 }
 
-// ===== TOAST =====
-let toastTimer;
-function showToast(msg, success = true) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (success ? '' : '') + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+// ── XML HELPERS ──
+function xesc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ===== EXPORT TO WORD (pure browser XML approach) =====
-let pendingBlob = null;
-let pendingFileName = '';
-
-function escXml(str) {
-  return String(str || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+function mkPara(text, opts) {
+  var o = opts || {};
+  var bold  = o.bold  ? '<w:b/><w:bCs/>' : '';
+  var color = o.color ? '<w:color w:val="'+o.color+'"/>' : '';
+  var sz    = o.sz    ? '<w:sz w:val="'+o.sz+'"/><w:szCs w:val="'+o.sz+'"/>' : '<w:sz w:val="22"/><w:szCs w:val="22"/>';
+  var al    = o.al    ? '<w:jc w:val="'+o.al+'"/>' : '<w:jc w:val="right"/>';
+  var sp    = '';
+  if(o.sb || o.sa) sp = '<w:spacing'+(o.sb?' w:before="'+o.sb+'"':'')+(o.sa?' w:after="'+o.sa+'"':'')+'/>';
+  return '<w:p><w:pPr><w:bidi/>'+al+sp+'</w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'+bold+color+sz+'</w:rPr><w:t xml:space="preserve">'+xesc(text)+'</w:t></w:r></w:p>';
 }
 
-function wPara(text, opts = {}) {
-  const bold   = opts.bold   ? '<w:b/>' : '';
-  const color  = opts.color  ? `<w:color w:val="${opts.color}"/>` : '';
-  const size   = opts.size   ? `<w:sz w:val="${opts.size}"/><w:szCs w:val="${opts.size}"/>` : '<w:sz w:val="22"/><w:szCs w:val="22"/>';
-  const align  = opts.align  ? `<w:jc w:val="${opts.align}"/>` : '<w:jc w:val="right"/>';
-  const spaceB = opts.spaceB ? `<w:before w:val="${opts.spaceB}"/>` : '';
-  const spaceA = opts.spaceA ? `<w:after w:val="${opts.spaceA}"/>` : '';
-  const spacing = (spaceB || spaceA) ? `<w:spacing ${spaceB} ${spaceA}/>` : '';
-  const shade  = opts.shade  ? `<w:shd w:val="clear" w:color="auto" w:fill="${opts.shade}"/>` : '';
-  return `
-<w:p>
-  <w:pPr><w:bidi/>${align}${spacing}${shade}</w:pPr>
-  <w:r>
-    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${bold}${color}${size}</w:rPr>
-    <w:t xml:space="preserve">${escXml(text)}</w:t>
-  </w:r>
-</w:p>`;
+function mkHCell(text, w) {
+  return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="0D5C2E"/><w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:b/><w:bCs/><w:color w:val="FFFFFF"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr><w:t>'+xesc(text)+'</w:t></w:r></w:p></w:tc>';
 }
 
-function wCell(text, width, fill) {
-  const bgFill = fill || 'FFFFFF';
-  return `
-<w:tc>
-  <w:tcPr>
-    <w:tcW w:w="${width}" w:type="dxa"/>
-    <w:shd w:val="clear" w:color="auto" w:fill="${bgFill}"/>
-    <w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>
-  </w:tcPr>
-  <w:p>
-    <w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>
-    <w:r>
-      <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr>
-      <w:t xml:space="preserve">${escXml(text || '—')}</w:t>
-    </w:r>
-  </w:p>
-</w:tc>`;
+function mkDCell(text, w, fill) {
+  var f = fill || 'FFFFFF';
+  return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="'+f+'"/><w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">'+xesc(text||'—')+'</w:t></w:r></w:p></w:tc>';
 }
 
-function wHeaderCell(text, width) {
-  return `
-<w:tc>
-  <w:tcPr>
-    <w:tcW w:w="${width}" w:type="dxa"/>
-    <w:shd w:val="clear" w:color="auto" w:fill="0D5C2E"/>
-    <w:tcMar><w:top w:w="100" w:type="dxa"/><w:bottom w:w="100" w:type="dxa"/><w:left w:w="140" w:type="dxa"/><w:right w:w="140" w:type="dxa"/></w:tcMar>
-  </w:tcPr>
-  <w:p>
-    <w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr>
-    <w:r>
-      <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
-      <w:t>${escXml(text)}</w:t>
-    </w:r>
-  </w:p>
-</w:tc>`;
-}
-
-function buildDocxXml(day, zone, dateFormatted, dateVal, totalImages) {
-  const tableHeaderRow = `
-<w:tr>
-  <w:trPr><w:tblHeader/></w:trPr>
-  ${wHeaderCell('ملاحظات', 4500)}
-  ${wHeaderCell('رقم النقطة', 1800)}
-  ${wHeaderCell('#', 720)}
-</w:tr>`;
-
-  const dataRows = points.map((p, i) => {
-    const fill = i % 2 === 0 ? 'F0F4F1' : 'FFFFFF';
-    return `
-<w:tr>
-  ${wCell(p.notes || '—', 4500, fill)}
-  ${wCell(p.num, 1800, fill)}
-  ${wCell(String(i+1), 720, fill)}
-</w:tr>`;
+function buildDocXml(day, zone, dateFmt, totalImages) {
+  var bdr = '<w:top w:val="single" w:sz="4" w:color="C5DDC9"/><w:left w:val="single" w:sz="4" w:color="C5DDC9"/><w:bottom w:val="single" w:sz="4" w:color="C5DDC9"/><w:right w:val="single" w:sz="4" w:color="C5DDC9"/><w:insideH w:val="single" w:sz="4" w:color="C5DDC9"/><w:insideV w:val="single" w:sz="4" w:color="C5DDC9"/>';
+  var hRow = '<w:tr><w:trPr><w:tblHeader/></w:trPr>'+mkHCell('ملاحظات',4500)+mkHCell('رقم النقطة',1800)+mkHCell('#',720)+'</w:tr>';
+  var dRows = points.map(function(p,i){
+    var f = i%2===0?'F0F4F1':'FFFFFF';
+    return '<w:tr>'+mkDCell(p.notes,4500,f)+mkDCell(p.num,1800,f)+mkDCell(String(i+1),720,f)+'</w:tr>';
   }).join('');
+  var table = '<w:tbl><w:tblPr><w:tblW w:w="7020" w:type="dxa"/><w:tblBorders>'+bdr+'</w:tblBorders><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="4500"/><w:gridCol w:w="1800"/><w:gridCol w:w="720"/></w:tblGrid>'+hRow+dRows+'</w:tbl>';
 
-  const table = `
-<w:tbl>
-  <w:tblPr>
-    <w:tblW w:w="7020" w:type="dxa"/>
-    <w:tblBorders>
-      <w:top w:val="single" w:sz="4" w:color="C5DDC9"/>
-      <w:left w:val="single" w:sz="4" w:color="C5DDC9"/>
-      <w:bottom w:val="single" w:sz="4" w:color="C5DDC9"/>
-      <w:right w:val="single" w:sz="4" w:color="C5DDC9"/>
-      <w:insideH w:val="single" w:sz="4" w:color="C5DDC9"/>
-      <w:insideV w:val="single" w:sz="4" w:color="C5DDC9"/>
-    </w:tblBorders>
-    <w:tblLayout w:type="fixed"/>
-  </w:tblPr>
-  <w:tblGrid>
-    <w:gridCol w:w="4500"/>
-    <w:gridCol w:w="1800"/>
-    <w:gridCol w:w="720"/>
-  </w:tblGrid>
-  ${tableHeaderRow}
-  ${dataRows}
-</w:tbl>`;
-
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:o="urn:schemas-microsoft-com:office:office"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-  xmlns:v="urn:schemas-microsoft-com:vml"
-  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
-  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-  xmlns:w10="urn:schemas-microsoft-com:office:word"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
-  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
-  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
-  xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
-  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
-  mc:Ignorable="w14 wp14">
-<w:body>
-
-${wPara('تقرير الفرز من المصدر', {bold:true, size:40, color:'0D5C2E', align:'center', spaceB:'240', spaceA:'120'})}
-${wPara(`منطقة: ${zone}  |  يوم ${day}  |  ${dateFormatted}`, {size:22, color:'C8971A', align:'center', spaceA:'320'})}
-
-${wPara('أولاً: مقدمة التقرير', {bold:true, size:26, color:'0D5C2E', spaceB:'200', spaceA:'160'})}
-
-${wPara(`يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر، وذلك في منطقة ${zone}، يوم ${day} الموافق ${dateFormatted}. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.`, {spaceA:'160'})}
-
-${wPara('تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية، وتقديم التوصيات اللازمة لتحسين الأداء وتطوير منظومة إدارة النفايات الصلبة.', {spaceA:'160'})}
-
-${wPara(`شملت الجولة رصد ${points.length} نقطة ميدانية، وتوثيق ${totalImages} صورة ميدانية، مع تسجيل الملاحظات التفصيلية لكل نقطة. وقد تم تنفيذ الجولة وفق المنهجية المعتمدة في دائرة الدراسات البيئية، وتحت إشراف المهندس عمر الهدبان.`, {spaceA:'320'})}
-
-${wPara('ثانياً: جدول النقاط الميدانية المرصودة', {bold:true, size:26, color:'0D5C2E', spaceB:'200', spaceA:'200'})}
-
-${table}
-
-${wPara('', {spaceA:'240'})}
-
-${wPara('ثالثاً: ملخص النتائج', {bold:true, size:26, color:'0D5C2E', spaceB:'200', spaceA:'160'})}
-${wPara(`إجمالي النقاط الميدانية المرصودة: ${points.length} نقطة`, {spaceA:'100'})}
-${wPara(`إجمالي الصور الميدانية الموثقة: ${totalImages} صورة`, {spaceA:'100'})}
-${wPara(`المنطقة الجغرافية: ${zone}`, {spaceA:'100'})}
-${wPara(`تاريخ الجولة الميدانية: ${dateFormatted}`, {spaceA:'320'})}
-
-${wPara('أُعدّ هذا التقرير بواسطة: م. عمر الهدبان', {bold:true, color:'0D5C2E', spaceB:'200', spaceA:'80'})}
-${wPara(`التاريخ: ${dateFormatted}`, {color:'666666', spaceA:'80'})}
-${wPara('دائرة الدراسات البيئية / م. معاذ المناصير', {color:'666666'})}
-${wPara('جميع الحقوق محفوظة © دائرة الدراسات البيئية / م. معاذ المناصير — للاستخدام: م. عمر الهدبان', {color:'999999', size:18, align:'center', spaceB:'400'})}
-
-<w:sectPr>
-  <w:pgSz w:w="11906" w:h="16838"/>
-  <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="720" w:footer="720" w:gutter="0"/>
-</w:sectPr>
-</w:body>
-</w:document>`;
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n'+
+'<w:body>\n'+
+mkPara('تقرير الفرز من المصدر',{bold:true,sz:40,color:'0D5C2E',al:'center',sb:'200',sa:'100'})+'\n'+
+mkPara('منطقة: '+zone+'  |  يوم '+day+'  |  '+dateFmt,{sz:24,color:'C8971A',al:'center',sa:'300'})+'\n'+
+mkPara('أولاً: مقدمة التقرير',{bold:true,sz:28,color:'0D5C2E',sb:'160',sa:'140'})+'\n'+
+mkPara('يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر، وذلك في منطقة '+zone+'، يوم '+day+' الموافق '+dateFmt+'. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.',{sa:'140'})+'\n'+
+mkPara('تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية، وتقديم التوصيات اللازمة لتحسين الأداء وتطوير منظومة إدارة النفايات الصلبة.',{sa:'140'})+'\n'+
+mkPara('شملت الجولة رصد '+points.length+' نقطة ميدانية، وتوثيق '+totalImages+' صورة ميدانية، مع تسجيل الملاحظات التفصيلية لكل نقطة. وقد تم تنفيذ الجولة وفق المنهجية المعتمدة في دائرة الدراسات البيئية، وتحت إشراف المهندس عمر الهدبان.',{sa:'280'})+'\n'+
+mkPara('ثانياً: جدول النقاط الميدانية المرصودة',{bold:true,sz:28,color:'0D5C2E',sb:'160',sa:'180'})+'\n'+
+table+'\n'+
+mkPara('',{sa:'200'})+'\n'+
+mkPara('ثالثاً: ملخص النتائج',{bold:true,sz:28,color:'0D5C2E',sb:'160',sa:'140'})+'\n'+
+mkPara('إجمالي النقاط الميدانية المرصودة: '+points.length+' نقطة',{sa:'100'})+'\n'+
+mkPara('إجمالي الصور الميدانية الموثقة: '+totalImages+' صورة',{sa:'100'})+'\n'+
+mkPara('المنطقة الجغرافية: '+zone,{sa:'100'})+'\n'+
+mkPara('تاريخ الجولة الميدانية: '+dateFmt,{sa:'280'})+'\n'+
+mkPara('أُعدّ هذا التقرير بواسطة: م. عمر الهدبان',{bold:true,color:'0D5C2E',sb:'160',sa:'80'})+'\n'+
+mkPara('التاريخ: '+dateFmt,{color:'666666',sa:'80'})+'\n'+
+mkPara('دائرة الدراسات البيئية / م. معاذ المناصير',{color:'666666',sa:'80'})+'\n'+
+mkPara('جميع الحقوق محفوظة © دائرة الدراسات البيئية / م. معاذ المناصير — للاستخدام: م. عمر الهدبان',{color:'999999',sz:18,al:'center',sb:'300'})+'\n'+
+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800"/></w:sectPr>\n'+
+'</w:body></w:document>';
 }
 
-function buildDocx(docXml) {
-  const zip = new PizZip();
+// ── EXPORT ──
+function exportWord() {
+  if(!points.length){ showToast('⚠️ لا توجد نقاط للتصدير'); return; }
 
-  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-</Types>`);
-
-  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`);
-
-  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>
-</Relationships>`);
-
-  zip.file('word/settings.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat>
-</w:settings>`);
-
-  zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:docDefaults>
-    <w:rPrDefault>
-      <w:rPr>
-        <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
-        <w:sz w:val="22"/><w:szCs w:val="22"/>
-        <w:lang w:val="ar-SA" w:eastAsia="ar-SA" w:bidi="ar-SA"/>
-      </w:rPr>
-    </w:rPrDefault>
-  </w:docDefaults>
-</w:styles>`);
-
-  zip.file('word/document.xml', docXml);
-
-  return zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-}
-
-function exportToWord() {
-  if(points.length === 0) { showToast('⚠️ لا توجد نقاط لتصديرها', false); return; }
-
-  const day      = document.getElementById('fieldDay').value.trim()  || '—';
-  const dateVal  = document.getElementById('fieldDate').value;
-  const zone     = document.getElementById('fieldZone').value.trim() || '—';
-
-  let dateFormatted = dateVal;
+  var day     = document.getElementById('fieldDay').value.trim()  || '—';
+  var dateVal = document.getElementById('fieldDate').value;
+  var zone    = document.getElementById('fieldZone').value.trim() || '—';
+  var dateFmt = dateVal;
   if(dateVal) {
-    const d = new Date(dateVal);
-    dateFormatted = d.toLocaleDateString('ar-JO', {year:'numeric', month:'long', day:'numeric'});
+    var d = new Date(dateVal+'T12:00:00');
+    dateFmt = d.toLocaleDateString('ar-JO',{year:'numeric',month:'long',day:'numeric'});
   }
-
-  const totalImages = points.reduce((s,p) => s + p.images.length, 0);
+  var totalImages = points.reduce(function(s,p){return s+p.images.length;},0);
 
   try {
-    const docXml = buildDocxXml(day, zone, dateFormatted, dateVal, totalImages);
-    pendingBlob = buildDocx(docXml);
-    pendingFileName = `تقرير_فرز_المصدر_${zone}_${dateVal || 'بدون_تاريخ'}.docx`;
+    var docXml = buildDocXml(day, zone, dateFmt, totalImages);
 
-    document.getElementById('dlModalDesc').textContent =
-      `التقرير يحتوي على ${points.length} نقطة و${totalImages} صورة — منطقة ${zone}`;
-    document.getElementById('downloadModal').classList.add('active');
+    var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/></Types>';
+
+    var rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+
+    var wordRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/></Relationships>';
+
+    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="ar-SA" w:bidi="ar-SA"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
+
+    var settings = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
+
+    var zip = new JSZip();
+    zip.file('[Content_Types].xml', ct);
+    zip.file('_rels/.rels', rels);
+    zip.file('word/document.xml', docXml);
+    zip.file('word/_rels/document.xml.rels', wordRels);
+    zip.file('word/styles.xml', styles);
+    zip.file('word/settings.xml', settings);
+
+    zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      compression: 'DEFLATE',
+      compressionOptions: {level:6}
+    }).then(function(blob) {
+      pendingBlob = blob;
+      pendingName = 'تقرير_فرز_المصدر_'+zone+'_'+(dateVal||'بدون_تاريخ')+'.docx';
+      document.getElementById('dlDesc').textContent =
+        'التقرير يحتوي على '+points.length+' نقطة و'+totalImages+' صورة — منطقة '+zone;
+      document.getElementById('dlOverlay').classList.add('active');
+    }).catch(function(err) {
+      showToast('⚠️ خطأ في ضغط الملف: '+err.message);
+      console.error(err);
+    });
+
   } catch(err) {
-    showToast('⚠️ حدث خطأ أثناء إنشاء الملف', false);
+    showToast('⚠️ خطأ في بناء الملف: '+err.message);
     console.error(err);
   }
-}
-
-function triggerDownload() {
-  if(!pendingBlob) return;
-  saveAs(pendingBlob, pendingFileName);
-  showToast('🎉 تم تحميل التقرير بنجاح!', true);
-  closeDownloadModal();
-}
-
-function closeDownloadModal() {
-  document.getElementById('downloadModal').classList.remove('active');
 }
 </script>
 </body>
