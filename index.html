@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>النظام المتكامل لإعداد تقارير الفرز من المصدر</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PizZip/3.1.4/pizzip.umd.min.js"></script>
 <style>
   :root {
     --green-deep: #0d5c2e;
@@ -739,7 +740,50 @@
     font-weight: 700;
   }
 
-  /* PROGRESS */
+  /* DOWNLOAD MODAL */
+  .download-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .download-overlay.active { display: flex; }
+  .download-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 36px;
+    width: min(420px, 92vw);
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .download-modal .dl-icon { font-size: 3.5rem; margin-bottom: 12px; }
+  .download-modal h3 { font-size: 1.2rem; font-weight: 700; color: var(--green-deep); margin-bottom: 8px; }
+  .download-modal p  { font-size: 0.85rem; color: var(--gray); margin-bottom: 24px; font-family:'Tajawal',sans-serif; }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-deep));
+    color: white; border: none; border-radius: 12px;
+    padding: 14px 32px; font-family:'Cairo',sans-serif; font-size: 1rem;
+    font-weight: 700; cursor: pointer; width: 100%; justify-content: center;
+    box-shadow: 0 4px 16px rgba(26,122,64,0.35); transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(26,122,64,0.45); }
+  .btn-close-dl {
+    background: none; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 10px 28px; font-family:'Cairo',sans-serif; font-size: 0.88rem;
+    color: var(--gray); cursor: pointer; width: 100%; transition: all 0.2s;
+  }
+  .btn-close-dl:hover { background: var(--green-pale); color: var(--green-deep); }
   .progress-bar-wrap {
     background: var(--border);
     border-radius: 4px;
@@ -863,7 +907,7 @@
         <button class="btn btn-primary" onclick="savePoint()">💾 حفظ النقطة</button>
         <button class="btn btn-secondary" onclick="saveAndAddNew()">➕ حفظ وإضافة جديدة</button>
         <button class="btn btn-danger" onclick="resetEntry()">🗑️ مسح الإدخال</button>
-        <button class="btn btn-export" onclick="exportToWord()">📄 تصدير تقرير Word</button>
+        <button class="btn btn-export" onclick="exportToWord()" id="exportBtn">📄 تصدير تقرير Word</button>
       </div>
     </div>
   </div>
@@ -912,6 +956,17 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- DOWNLOAD MODAL -->
+<div class="download-overlay" id="downloadModal">
+  <div class="download-modal">
+    <div class="dl-icon">✅</div>
+    <h3>تم إعداد التقرير بنجاح!</h3>
+    <p id="dlModalDesc">الملف جاهز للتحميل على جهازك</p>
+    <button class="btn-download" id="dlBtn" onclick="triggerDownload()">⬇️ تحميل ملف Word</button>
+    <button class="btn-close-dl" onclick="closeDownloadModal()">إغلاق</button>
+  </div>
+</div>
 
 <!-- CAMERA MODAL -->
 <div class="modal-overlay" id="cameraModal">
@@ -1116,238 +1171,255 @@ function showToast(msg, success = true) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ===== EXPORT TO WORD =====
-async function exportToWord() {
+// ===== EXPORT TO WORD (pure browser XML approach) =====
+let pendingBlob = null;
+let pendingFileName = '';
+
+function escXml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function wPara(text, opts = {}) {
+  const bold   = opts.bold   ? '<w:b/>' : '';
+  const color  = opts.color  ? `<w:color w:val="${opts.color}"/>` : '';
+  const size   = opts.size   ? `<w:sz w:val="${opts.size}"/><w:szCs w:val="${opts.size}"/>` : '<w:sz w:val="22"/><w:szCs w:val="22"/>';
+  const align  = opts.align  ? `<w:jc w:val="${opts.align}"/>` : '<w:jc w:val="right"/>';
+  const spaceB = opts.spaceB ? `<w:before w:val="${opts.spaceB}"/>` : '';
+  const spaceA = opts.spaceA ? `<w:after w:val="${opts.spaceA}"/>` : '';
+  const spacing = (spaceB || spaceA) ? `<w:spacing ${spaceB} ${spaceA}/>` : '';
+  const shade  = opts.shade  ? `<w:shd w:val="clear" w:color="auto" w:fill="${opts.shade}"/>` : '';
+  return `
+<w:p>
+  <w:pPr><w:bidi/>${align}${spacing}${shade}</w:pPr>
+  <w:r>
+    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${bold}${color}${size}</w:rPr>
+    <w:t xml:space="preserve">${escXml(text)}</w:t>
+  </w:r>
+</w:p>`;
+}
+
+function wCell(text, width, fill) {
+  const bgFill = fill || 'FFFFFF';
+  return `
+<w:tc>
+  <w:tcPr>
+    <w:tcW w:w="${width}" w:type="dxa"/>
+    <w:shd w:val="clear" w:color="auto" w:fill="${bgFill}"/>
+    <w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>
+  </w:tcPr>
+  <w:p>
+    <w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>
+    <w:r>
+      <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr>
+      <w:t xml:space="preserve">${escXml(text || '—')}</w:t>
+    </w:r>
+  </w:p>
+</w:tc>`;
+}
+
+function wHeaderCell(text, width) {
+  return `
+<w:tc>
+  <w:tcPr>
+    <w:tcW w:w="${width}" w:type="dxa"/>
+    <w:shd w:val="clear" w:color="auto" w:fill="0D5C2E"/>
+    <w:tcMar><w:top w:w="100" w:type="dxa"/><w:bottom w:w="100" w:type="dxa"/><w:left w:w="140" w:type="dxa"/><w:right w:w="140" w:type="dxa"/></w:tcMar>
+  </w:tcPr>
+  <w:p>
+    <w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr>
+    <w:r>
+      <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
+      <w:t>${escXml(text)}</w:t>
+    </w:r>
+  </w:p>
+</w:tc>`;
+}
+
+function buildDocxXml(day, zone, dateFormatted, dateVal, totalImages) {
+  const tableHeaderRow = `
+<w:tr>
+  <w:trPr><w:tblHeader/></w:trPr>
+  ${wHeaderCell('ملاحظات', 4500)}
+  ${wHeaderCell('رقم النقطة', 1800)}
+  ${wHeaderCell('#', 720)}
+</w:tr>`;
+
+  const dataRows = points.map((p, i) => {
+    const fill = i % 2 === 0 ? 'F0F4F1' : 'FFFFFF';
+    return `
+<w:tr>
+  ${wCell(p.notes || '—', 4500, fill)}
+  ${wCell(p.num, 1800, fill)}
+  ${wCell(String(i+1), 720, fill)}
+</w:tr>`;
+  }).join('');
+
+  const table = `
+<w:tbl>
+  <w:tblPr>
+    <w:tblW w:w="7020" w:type="dxa"/>
+    <w:tblBorders>
+      <w:top w:val="single" w:sz="4" w:color="C5DDC9"/>
+      <w:left w:val="single" w:sz="4" w:color="C5DDC9"/>
+      <w:bottom w:val="single" w:sz="4" w:color="C5DDC9"/>
+      <w:right w:val="single" w:sz="4" w:color="C5DDC9"/>
+      <w:insideH w:val="single" w:sz="4" w:color="C5DDC9"/>
+      <w:insideV w:val="single" w:sz="4" w:color="C5DDC9"/>
+    </w:tblBorders>
+    <w:tblLayout w:type="fixed"/>
+  </w:tblPr>
+  <w:tblGrid>
+    <w:gridCol w:w="4500"/>
+    <w:gridCol w:w="1800"/>
+    <w:gridCol w:w="720"/>
+  </w:tblGrid>
+  ${tableHeaderRow}
+  ${dataRows}
+</w:tbl>`;
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:w10="urn:schemas-microsoft-com:office:word"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
+  xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+  mc:Ignorable="w14 wp14">
+<w:body>
+
+${wPara('تقرير الفرز من المصدر', {bold:true, size:40, color:'0D5C2E', align:'center', spaceB:'240', spaceA:'120'})}
+${wPara(`منطقة: ${zone}  |  يوم ${day}  |  ${dateFormatted}`, {size:22, color:'C8971A', align:'center', spaceA:'320'})}
+
+${wPara('أولاً: مقدمة التقرير', {bold:true, size:26, color:'0D5C2E', spaceB:'200', spaceA:'160'})}
+
+${wPara(`يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر، وذلك في منطقة ${zone}، يوم ${day} الموافق ${dateFormatted}. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.`, {spaceA:'160'})}
+
+${wPara('تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية، وتقديم التوصيات اللازمة لتحسين الأداء وتطوير منظومة إدارة النفايات الصلبة.', {spaceA:'160'})}
+
+${wPara(`شملت الجولة رصد ${points.length} نقطة ميدانية، وتوثيق ${totalImages} صورة ميدانية، مع تسجيل الملاحظات التفصيلية لكل نقطة. وقد تم تنفيذ الجولة وفق المنهجية المعتمدة في دائرة الدراسات البيئية، وتحت إشراف المهندس عمر الهدبان.`, {spaceA:'320'})}
+
+${wPara('ثانياً: جدول النقاط الميدانية المرصودة', {bold:true, size:26, color:'0D5C2E', spaceB:'200', spaceA:'200'})}
+
+${table}
+
+${wPara('', {spaceA:'240'})}
+
+${wPara('ثالثاً: ملخص النتائج', {bold:true, size:26, color:'0D5C2E', spaceB:'200', spaceA:'160'})}
+${wPara(`إجمالي النقاط الميدانية المرصودة: ${points.length} نقطة`, {spaceA:'100'})}
+${wPara(`إجمالي الصور الميدانية الموثقة: ${totalImages} صورة`, {spaceA:'100'})}
+${wPara(`المنطقة الجغرافية: ${zone}`, {spaceA:'100'})}
+${wPara(`تاريخ الجولة الميدانية: ${dateFormatted}`, {spaceA:'320'})}
+
+${wPara('أُعدّ هذا التقرير بواسطة: م. عمر الهدبان', {bold:true, color:'0D5C2E', spaceB:'200', spaceA:'80'})}
+${wPara(`التاريخ: ${dateFormatted}`, {color:'666666', spaceA:'80'})}
+${wPara('دائرة الدراسات البيئية / م. معاذ المناصير', {color:'666666'})}
+${wPara('جميع الحقوق محفوظة © دائرة الدراسات البيئية / م. معاذ المناصير — للاستخدام: م. عمر الهدبان', {color:'999999', size:18, align:'center', spaceB:'400'})}
+
+<w:sectPr>
+  <w:pgSz w:w="11906" w:h="16838"/>
+  <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="720" w:footer="720" w:gutter="0"/>
+</w:sectPr>
+</w:body>
+</w:document>`;
+}
+
+function buildDocx(docXml) {
+  const zip = new PizZip();
+
+  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`);
+
+  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+
+  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>
+</Relationships>`);
+
+  zip.file('word/settings.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat>
+</w:settings>`);
+
+  zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault>
+      <w:rPr>
+        <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+        <w:sz w:val="22"/><w:szCs w:val="22"/>
+        <w:lang w:val="ar-SA" w:eastAsia="ar-SA" w:bidi="ar-SA"/>
+      </w:rPr>
+    </w:rPrDefault>
+  </w:docDefaults>
+</w:styles>`);
+
+  zip.file('word/document.xml', docXml);
+
+  return zip.generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+}
+
+function exportToWord() {
   if(points.length === 0) { showToast('⚠️ لا توجد نقاط لتصديرها', false); return; }
 
-  showToast('⏳ جارٍ إعداد التقرير...', true);
-
-  const day = document.getElementById('fieldDay').value.trim() || '—';
-  const dateVal = document.getElementById('fieldDate').value;
-  const zone = document.getElementById('fieldZone').value.trim() || '—';
+  const day      = document.getElementById('fieldDay').value.trim()  || '—';
+  const dateVal  = document.getElementById('fieldDate').value;
+  const zone     = document.getElementById('fieldZone').value.trim() || '—';
 
   let dateFormatted = dateVal;
   if(dateVal) {
     const d = new Date(dateVal);
-    dateFormatted = d.toLocaleDateString('ar-JO', {year:'numeric',month:'long',day:'numeric'});
+    dateFormatted = d.toLocaleDateString('ar-JO', {year:'numeric', month:'long', day:'numeric'});
   }
-
-  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
-          AlignmentType, BorderStyle, WidthType, ShadingType, HeadingLevel,
-          Header, Footer, PageNumber, NumberFormat } = docx;
-
-  const gold = "C8971A";
-  const greenDeep = "0D5C2E";
-  const greenMid = "1A7A40";
-  const lightGray = "F0F4F1";
-  const borderColor = "C5DDC9";
-
-  const border = { style: BorderStyle.SINGLE, size: 1, color: borderColor };
-  const borders = { top: border, bottom: border, left: border, right: border };
-
-  function rtlPara(children, opts = {}) {
-    return new Paragraph({
-      bidirectional: true,
-      alignment: AlignmentType.RIGHT,
-      ...opts,
-      children
-    });
-  }
-
-  // Build table rows
-  const headerRow = new TableRow({
-    tableHeader: true,
-    children: [
-      makeHeaderCell('ملاحظات', 4500),
-      makeHeaderCell('رقم النقطة', 1800),
-      makeHeaderCell('#', 720),
-    ]
-  });
-
-  function makeHeaderCell(text, width) {
-    return new TableCell({
-      borders,
-      width: { size: width, type: WidthType.DXA },
-      shading: { fill: greenDeep, type: ShadingType.CLEAR },
-      margins: { top: 100, bottom: 100, left: 140, right: 140 },
-      children: [new Paragraph({
-        bidirectional: true,
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text, bold: true, color: "FFFFFF", size: 22, font: "Arial" })]
-      })]
-    });
-  }
-
-  function makeCell(text, width, shade = false) {
-    return new TableCell({
-      borders,
-      width: { size: width, type: WidthType.DXA },
-      shading: { fill: shade ? lightGray : "FFFFFF", type: ShadingType.CLEAR },
-      margins: { top: 80, bottom: 80, left: 120, right: 120 },
-      children: [new Paragraph({
-        bidirectional: true,
-        alignment: AlignmentType.RIGHT,
-        children: [new TextRun({ text: text || '—', size: 20, font: "Arial" })]
-      })]
-    });
-  }
-
-  const dataRows = points.map((p, i) => new TableRow({
-    children: [
-      makeCell(p.notes || '—', 4500, i % 2 === 0),
-      makeCell(p.num, 1800, i % 2 === 0),
-      makeCell(String(i + 1), 720, i % 2 === 0),
-    ]
-  }));
-
-  const pointsTable = new Table({
-    width: { size: 7020, type: WidthType.DXA },
-    columnWidths: [4500, 1800, 720],
-    rows: [headerRow, ...dataRows]
-  });
 
   const totalImages = points.reduce((s,p) => s + p.images.length, 0);
 
-  const doc = new Document({
-    styles: {
-      default: {
-        document: { run: { font: "Arial", size: 22 } }
-      }
-    },
-    sections: [{
-      properties: {
-        page: {
-          size: { width: 11906, height: 16838 },
-          margin: { top: 1440, right: 1800, bottom: 1440, left: 1800 }
-        }
-      },
-      headers: {
-        default: new Header({
-          children: [
-            new Paragraph({
-              bidirectional: true,
-              alignment: AlignmentType.CENTER,
-              border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: gold, space: 1 } },
-              children: [
-                new TextRun({ text: 'النظام المتكامل لإعداد تقارير الفرز من المصدر', bold: true, size: 20, color: greenDeep, font: "Arial" }),
-                new TextRun({ text: '  |  دائرة الدراسات البيئية', size: 18, color: "888888", font: "Arial" }),
-              ]
-            })
-          ]
-        })
-      },
-      footers: {
-        default: new Footer({
-          children: [
-            new Paragraph({
-              bidirectional: true,
-              alignment: AlignmentType.CENTER,
-              border: { top: { style: BorderStyle.SINGLE, size: 4, color: gold, space: 1 } },
-              children: [
-                new TextRun({ text: 'جميع الحقوق محفوظة © دائرة الدراسات البيئية / م. معاذ المناصير — للاستخدام: م. عمر الهدبان  |  صفحة ', size: 16, color: "888888", font: "Arial" }),
-                new TextRun({ children: [PageNumber.CURRENT], size: 16, color: greenDeep, font: "Arial" }),
-              ]
-            })
-          ]
-        })
-      },
-      children: [
-        // TITLE
-        rtlPara([
-          new TextRun({ text: 'تقرير الفرز من المصدر', bold: true, size: 40, color: greenDeep, font: "Arial" })
-        ], { alignment: AlignmentType.CENTER, spacing: { before: 240, after: 120 } }),
-
-        rtlPara([
-          new TextRun({ text: `منطقة: ${zone}  |  يوم ${day}  |  ${dateFormatted}`, size: 22, color: gold, font: "Arial" })
-        ], { alignment: AlignmentType.CENTER, spacing: { after: 400 } }),
-
-        // INTRO TITLE
-        rtlPara([
-          new TextRun({ text: 'أولاً: مقدمة التقرير', bold: true, size: 26, color: greenDeep, font: "Arial" })
-        ], { spacing: { before: 200, after: 160 }, border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: greenMid, space: 1 } } }),
-
-        // INTRO TEXT
-        rtlPara([
-          new TextRun({
-            text: `يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر، وذلك في منطقة ${zone}، يوم ${day} الموافق ${dateFormatted}. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.`,
-            size: 22, font: "Arial"
-          })
-        ], { spacing: { after: 180 } }),
-
-        rtlPara([
-          new TextRun({
-            text: 'تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية، وتقديم التوصيات اللازمة لتحسين الأداء وتطوير منظومة إدارة النفايات.',
-            size: 22, font: "Arial"
-          })
-        ], { spacing: { after: 180 } }),
-
-        rtlPara([
-          new TextRun({
-            text: `شملت الجولة رصد ${points.length} نقطة ميدانية، وتوثيق ${totalImages} صورة ميدانية، مع تسجيل الملاحظات التفصيلية لكل نقطة. وقد تم تنفيذ الجولة وفق المنهجية المعتمدة في دائرة الدراسات البيئية، وتحت إشراف المهندس عمر الهدبان.`,
-            size: 22, font: "Arial"
-          })
-        ], { spacing: { after: 400 } }),
-
-        // TABLE TITLE
-        rtlPara([
-          new TextRun({ text: 'ثانياً: جدول النقاط الميدانية المرصودة', bold: true, size: 26, color: greenDeep, font: "Arial" })
-        ], { spacing: { before: 200, after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: greenMid, space: 1 } } }),
-
-        pointsTable,
-
-        rtlPara([], { spacing: { after: 300 } }),
-
-        // SUMMARY
-        rtlPara([
-          new TextRun({ text: 'ثالثاً: ملخص النتائج', bold: true, size: 26, color: greenDeep, font: "Arial" })
-        ], { spacing: { before: 200, after: 160 }, border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: greenMid, space: 1 } } }),
-
-        rtlPara([
-          new TextRun({ text: `• إجمالي النقاط الميدانية المرصودة: ${points.length} نقطة`, size: 22, font: "Arial" })
-        ], { spacing: { after: 120 } }),
-
-        rtlPara([
-          new TextRun({ text: `• إجمالي الصور الميدانية الموثقة: ${totalImages} صورة`, size: 22, font: "Arial" })
-        ], { spacing: { after: 120 } }),
-
-        rtlPara([
-          new TextRun({ text: `• المنطقة الجغرافية: ${zone}`, size: 22, font: "Arial" })
-        ], { spacing: { after: 120 } }),
-
-        rtlPara([
-          new TextRun({ text: `• تاريخ الجولة الميدانية: ${dateFormatted}`, size: 22, font: "Arial" })
-        ], { spacing: { after: 400 } }),
-
-        // SIGN
-        rtlPara([
-          new TextRun({ text: 'أُعدّ هذا التقرير بواسطة: م. عمر الهدبان', bold: true, size: 22, color: greenDeep, font: "Arial" })
-        ], { alignment: AlignmentType.RIGHT, spacing: { before: 200, after: 80 } }),
-
-        rtlPara([
-          new TextRun({ text: `التاريخ: ${dateFormatted}`, size: 20, color: "666666", font: "Arial" })
-        ], { alignment: AlignmentType.RIGHT, spacing: { after: 80 } }),
-
-        rtlPara([
-          new TextRun({ text: 'دائرة الدراسات البيئية / م. معاذ المناصير', size: 20, color: "666666", font: "Arial" })
-        ], { alignment: AlignmentType.RIGHT }),
-      ]
-    }]
-  });
-
   try {
-    const buffer = await Packer.toBuffer(doc);
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `تقرير_فرز_المصدر_${zone}_${dateVal || 'بدون_تاريخ'}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('🎉 تم تصدير التقرير بنجاح!', true);
+    const docXml = buildDocxXml(day, zone, dateFormatted, dateVal, totalImages);
+    pendingBlob = buildDocx(docXml);
+    pendingFileName = `تقرير_فرز_المصدر_${zone}_${dateVal || 'بدون_تاريخ'}.docx`;
+
+    document.getElementById('dlModalDesc').textContent =
+      `التقرير يحتوي على ${points.length} نقطة و${totalImages} صورة — منطقة ${zone}`;
+    document.getElementById('downloadModal').classList.add('active');
   } catch(err) {
     showToast('⚠️ حدث خطأ أثناء إنشاء الملف', false);
     console.error(err);
   }
+}
+
+function triggerDownload() {
+  if(!pendingBlob) return;
+  saveAs(pendingBlob, pendingFileName);
+  showToast('🎉 تم تحميل التقرير بنجاح!', true);
+  closeDownloadModal();
+}
+
+function closeDownloadModal() {
+  document.getElementById('downloadModal').classList.remove('active');
 }
 </script>
 </body>
