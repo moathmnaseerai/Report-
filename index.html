@@ -22,7 +22,7 @@ body{font-family:'Cairo',sans-serif;background:var(--cream);color:var(--dark);mi
 .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
 .stat-card{background:#fff;border-radius:14px;padding:16px 20px;border:1px solid var(--border);box-shadow:var(--sh);display:flex;align-items:center;gap:14px}
 .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
-.stat-icon.g{background:var(--gp)}.stat-icon.gold{background:#fdf3dc}.stat-icon.b{background:#e8f0fe}
+.stat-icon.g{background:var(--gp)}.stat-icon.gl{background:#fdf3dc}.stat-icon.b{background:#e8f0fe}
 .stat-label{font-size:.75rem;color:var(--gray);font-family:'Tajawal',sans-serif}
 .stat-value{font-size:1.5rem;font-weight:700;color:var(--gd);line-height:1}
 @media(max-width:580px){.stats-bar{grid-template-columns:1fr}}
@@ -31,7 +31,7 @@ body{font-family:'Cairo',sans-serif;background:var(--cream);color:var(--dark);mi
 .card-hd.green{background:linear-gradient(135deg,var(--gd),var(--gm))}
 .card-hd.gold-hd{background:linear-gradient(135deg,var(--gold),var(--gold-l))}
 .card-hd h2{color:#fff;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
-.badge{background:rgba(255,255,255,.25);color:#fff;padding:4px 14px;border-radius:20px;font-size:.85rem;font-weight:700}
+.bdg{background:rgba(255,255,255,.25);color:#fff;padding:4px 14px;border-radius:20px;font-size:.85rem;font-weight:700}
 .session-fields{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 @media(max-width:680px){.session-fields{grid-template-columns:1fr}}
 .field-group label{display:block;font-size:.8rem;font-weight:600;color:var(--gd);margin-bottom:6px;font-family:'Tajawal',sans-serif}
@@ -63,11 +63,11 @@ textarea:focus{outline:none;border-color:var(--gl);box-shadow:0 0 0 3px rgba(45,
 .entry-actions{display:flex;gap:12px;flex-wrap:wrap}
 .btn{padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
 .btn-primary{background:linear-gradient(135deg,var(--gm),var(--gd));color:#fff;box-shadow:0 4px 14px rgba(26,122,64,.35)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,122,64,.45)}
+.btn-primary:hover{transform:translateY(-2px)}
 .btn-secondary{background:var(--gp);color:var(--gd);border:1.5px solid var(--border)}
-.btn-secondary:hover{background:#d4eedd;border-color:var(--gl)}
+.btn-secondary:hover{background:#d4eedd}
 .btn-export{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;box-shadow:0 4px 14px rgba(200,151,26,.35);margin-right:auto}
-.btn-export:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(200,151,26,.45)}
+.btn-export:hover{transform:translateY(-2px)}
 .btn-danger{background:#fff5f5;color:#c53030;border:1.5px solid #fed7d7}
 .btn-danger:hover{background:#fed7d7}
 .tbl-wrap{overflow-x:auto}
@@ -76,46 +76,44 @@ thead th{background:var(--gp);color:var(--gd);font-weight:700;padding:12px 16px;
 tbody tr{border-bottom:1px solid #f0f4f1;transition:background .15s}
 tbody tr:hover{background:var(--gp)}
 tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
-.td-num{font-weight:700;color:var(--gd);font-size:1rem}
+.td-num{font-weight:700;color:var(--gd)}
 .td-img{display:inline-flex;align-items:center;gap:4px;background:var(--gp);padding:3px 10px;border-radius:20px;font-size:.78rem;color:var(--gd);font-weight:600}
-.td-del{background:none;border:none;cursor:pointer;color:#c53030;font-size:1rem;padding:4px 8px;border-radius:6px;transition:background .15s}
+.td-del{background:none;border:none;cursor:pointer;color:#c53030;font-size:1rem;padding:4px 8px;border-radius:6px}
 .td-del:hover{background:#fff5f5}
 .empty-state{text-align:center;padding:48px 20px;color:var(--gray)}
 .empty-state .ico{font-size:3rem;margin-bottom:12px}
 .bottom-bar{display:flex;align-items:center;gap:12px;padding:20px 24px;border-top:1px solid var(--border);flex-wrap:wrap;justify-content:flex-end}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gd);color:#fff;padding:12px 28px;border-radius:30px;font-size:.875rem;font-weight:600;box-shadow:var(--shl);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
-/* OVERLAY */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .overlay.active{display:flex}
-.dl-modal{background:#fff;border-radius:20px;padding:36px 32px;width:min(460px,94vw);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.dl-modal{background:#fff;border-radius:20px;padding:36px 32px;width:min(440px,94vw);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .dl-ico{font-size:3rem;margin-bottom:10px}
-.dl-modal h3{font-size:1.15rem;font-weight:700;color:var(--gd);margin-bottom:6px}
-.dl-modal p{font-size:.83rem;color:var(--gray);margin-bottom:22px;font-family:'Tajawal',sans-serif;line-height:1.6}
-.dl-btns{display:flex;flex-direction:column;gap:10px}
-.btn-dl{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:none;border-radius:12px;padding:14px;font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-dl.word{background:linear-gradient(135deg,var(--gm),var(--gd));color:#fff;box-shadow:0 4px 16px rgba(26,122,64,.3)}
-.btn-dl.word:hover{transform:translateY(-2px)}
-.btn-dl.photos{background:linear-gradient(135deg,#1a4e8a,#2563eb);color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.3)}
-.btn-dl.photos:hover{transform:translateY(-2px)}
-.btn-cl{background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-family:'Cairo',sans-serif;font-size:.88rem;color:var(--gray);cursor:pointer;width:100%;transition:all .2s;margin-top:4px}
-.btn-cl:hover{background:var(--gp);color:var(--gd)}
-/* progress */
-.prog-wrap{background:#e9ecef;border-radius:8px;height:8px;overflow:hidden;margin:14px 0 6px}
-.prog-bar{height:100%;background:linear-gradient(90deg,var(--gm),var(--gg));border-radius:8px;transition:width .3s;width:0}
-.prog-label{font-size:.78rem;color:var(--gray);font-family:'Tajawal',sans-serif}
-/* CAMERA */
-.cam-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.dl-modal h3{font-size:1.1rem;font-weight:700;color:var(--gd);margin-bottom:6px}
+.dl-desc{font-size:.83rem;color:var(--gray);margin-bottom:20px;font-family:'Tajawal',sans-serif;line-height:1.6}
+.dl-btn-wrap{display:flex;flex-direction:column;gap:10px}
+.dl-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:none;border-radius:12px;padding:14px;font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s}
+.dl-btn.word{background:linear-gradient(135deg,var(--gm),var(--gd));color:#fff;box-shadow:0 4px 14px rgba(26,122,64,.3)}
+.dl-btn.word:hover{transform:translateY(-2px)}
+.dl-btn.photos{background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,.3)}
+.dl-btn.photos:hover{transform:translateY(-2px)}
+.dl-btn.close-btn-modal{background:none;border:1.5px solid var(--border);color:var(--gray)}
+.dl-btn.close-btn-modal:hover{background:var(--gp);color:var(--gd)}
+.prog-area{display:none;margin:16px 0 8px}
+.prog-wrap{background:#e5e7eb;border-radius:8px;height:10px;overflow:hidden;margin-bottom:8px}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--gm),var(--gg));border-radius:8px;width:0;transition:width .4s ease}
+.prog-lbl{font-size:.8rem;color:var(--gray);font-family:'Tajawal',sans-serif}
+.cam-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .cam-overlay.active{display:flex}
 .cam-modal{background:#0a1f12;border-radius:20px;overflow:hidden;width:min(480px,95vw);box-shadow:0 24px 80px rgba(0,0,0,.5)}
 .cam-hd{padding:16px 20px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
 .cam-hd h3{color:#fff;font-size:1rem}
-.close-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem}
+.cam-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem}
 #videoEl{width:100%;display:block;max-height:320px;object-fit:cover}
 #canvasEl{display:none}
 .cam-ctrl{padding:16px 20px;display:flex;justify-content:center}
-.cap-btn{width:64px;height:64px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.3);cursor:pointer;transition:transform .15s;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.cap-btn{width:64px;height:64px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.6rem;transition:transform .15s}
 .cap-btn:hover{transform:scale(1.05)}.cap-btn:active{transform:scale(.95)}
 .footer{text-align:center;padding:20px;border-top:1px solid var(--border);margin-top:12px;font-size:.75rem;color:var(--gray);font-family:'Tajawal',sans-serif}
 .footer span{color:var(--gd);font-weight:700}
@@ -130,14 +128,14 @@ tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
       <h1>النظام المتكامل لإعداد تقارير الفرز من المصدر</h1>
       <p>دائرة الدراسات البيئية — م. معاذ المناصير</p>
     </div>
-    <div class="header-badge">🌿 إصدار 3.0</div>
+    <div class="header-badge">🌿 إصدار 5.0</div>
   </div>
 </header>
 
 <div class="main">
   <div class="stats-bar">
     <div class="stat-card"><div class="stat-icon g">📍</div><div><div class="stat-label">إجمالي النقاط</div><div class="stat-value" id="statTotal">0</div></div></div>
-    <div class="stat-card"><div class="stat-icon gold">📸</div><div><div class="stat-label">إجمالي الصور</div><div class="stat-value" id="statPhotos">0</div></div></div>
+    <div class="stat-card"><div class="stat-icon gl">📸</div><div><div class="stat-label">إجمالي الصور</div><div class="stat-value" id="statPhotos">0</div></div></div>
     <div class="stat-card"><div class="stat-icon b">🕐</div><div><div class="stat-label">وقت بدء الجلسة</div><div class="stat-value" id="statTime" style="font-size:1rem">—</div></div></div>
   </div>
 
@@ -154,7 +152,7 @@ tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
   <div class="card">
     <div class="card-hd gold-hd">
       <h2>➕ إضافة نقطة رصد جديدة</h2>
-      <div class="badge">نقطة رقم: <span id="nextNum">1</span></div>
+      <div class="bdg">نقطة رقم: <span id="nextNum">1</span></div>
     </div>
     <div class="entry-body">
       <div class="entry-row">
@@ -178,7 +176,7 @@ tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
         <button class="btn btn-primary" onclick="savePoint()">💾 حفظ النقطة</button>
         <button class="btn btn-secondary" onclick="saveAndNew()">➕ حفظ وإضافة جديدة</button>
         <button class="btn btn-danger" onclick="resetEntry()">🗑️ مسح الإدخال</button>
-        <button class="btn btn-export" onclick="startExport()">📄 تصدير التقرير</button>
+        <button class="btn btn-export" onclick="openExportModal()">📤 تصدير</button>
       </div>
     </div>
   </div>
@@ -190,7 +188,7 @@ tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
     </div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th style="width:55px">#</th><th>رقم النقطة</th><th>الملاحظات</th><th>الصور</th><th>الوقت</th><th style="width:50px">حذف</th></tr></thead>
+        <thead><tr><th style="width:50px">#</th><th>رقم النقطة</th><th>الملاحظات</th><th>الصور</th><th>الوقت</th><th style="width:45px">حذف</th></tr></thead>
         <tbody id="pointsBody"><tr><td colspan="6"><div class="empty-state"><div class="ico">🗂️</div><p>ابدأ بإضافة أول نقطة رصد</p></div></td></tr></tbody>
       </table>
     </div>
@@ -204,19 +202,19 @@ tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
 <div class="toast" id="toast"></div>
 
 <!-- EXPORT MODAL -->
-<div class="overlay" id="dlOverlay">
+<div class="overlay" id="exportOverlay">
   <div class="dl-modal">
-    <div class="dl-ico">📋</div>
-    <h3>خيارات التصدير</h3>
-    <p id="dlDesc">اختر ما تريد تحميله</p>
-    <div id="progWrap" style="display:none">
+    <div class="dl-ico">📤</div>
+    <h3>تصدير التقرير</h3>
+    <p class="dl-desc" id="exportDesc">—</p>
+    <div class="prog-area" id="progArea">
       <div class="prog-wrap"><div class="prog-bar" id="progBar"></div></div>
-      <div class="prog-label" id="progLabel">جارٍ المعالجة...</div>
+      <div class="prog-lbl" id="progLbl">جارٍ المعالجة...</div>
     </div>
-    <div class="dl-btns" id="dlBtns">
-      <button class="btn-dl word" onclick="exportWord()">📄 تحميل تقرير Word (مع الصور)</button>
-      <button class="btn-dl photos" onclick="exportPhotos()">🖼️ تحميل جميع الصور (ZIP)</button>
-      <button class="btn-cl" onclick="closeDl()">إغلاق</button>
+    <div class="dl-btn-wrap" id="exportBtns">
+      <button class="dl-btn word" onclick="doExportWord()">📄 تحميل تقرير Word (مع الصور)</button>
+      <button class="dl-btn photos" onclick="doExportPhotos()">🖼️ تحميل جميع الصور (ZIP)</button>
+      <button class="dl-btn close-btn-modal" onclick="closeExportModal()">إغلاق</button>
     </div>
   </div>
 </div>
@@ -224,7 +222,7 @@ tbody td{padding:11px 16px;color:var(--dark);vertical-align:middle}
 <!-- CAMERA MODAL -->
 <div class="cam-overlay" id="camOverlay">
   <div class="cam-modal">
-    <div class="cam-hd"><h3>📸 التقاط صورة ميدانية</h3><button class="close-btn" onclick="closeCamera()">✕</button></div>
+    <div class="cam-hd"><h3>📸 التقاط صورة ميدانية</h3><button class="cam-close" onclick="closeCamera()">✕</button></div>
     <video id="videoEl" autoplay playsinline></video>
     <canvas id="canvasEl"></canvas>
     <div class="cam-ctrl"><button class="cap-btn" onclick="capturePhoto()">📸</button></div>
@@ -245,19 +243,21 @@ window.addEventListener('DOMContentLoaded', function() {
   updateNextNum();
 });
 
+// ── UPLOAD ──
 function handleUpload(e) {
   Array.from(e.target.files).forEach(function(f) {
     var r = new FileReader();
-    r.onload = function(ev) { curImgs.push({dataUrl:ev.target.result,name:f.name,type:f.type||'image/jpeg'}); renderPreviews(); };
+    r.onload = function(ev) { curImgs.push({dataUrl:ev.target.result, name:f.name}); renderPreviews(); };
     r.readAsDataURL(f);
   });
   e.target.value = '';
 }
 
+// ── CAMERA ──
 function openCamera() {
   navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
-    .then(function(s){ vidStream=s; document.getElementById('videoEl').srcObject=s; document.getElementById('camOverlay').classList.add('active'); })
-    .catch(function(){ showToast('⚠️ تعذر الوصول للكاميرا'); });
+    .then(function(s){vidStream=s;document.getElementById('videoEl').srcObject=s;document.getElementById('camOverlay').classList.add('active');})
+    .catch(function(){showToast('⚠️ تعذر الوصول للكاميرا');});
 }
 function closeCamera() {
   if(vidStream) vidStream.getTracks().forEach(function(t){t.stop();});
@@ -267,11 +267,12 @@ function capturePhoto() {
   var v=document.getElementById('videoEl'), c=document.getElementById('canvasEl');
   c.width=v.videoWidth; c.height=v.videoHeight;
   c.getContext('2d').drawImage(v,0,0);
-  var dataUrl=c.toDataURL('image/jpeg',.92);
-  curImgs.push({dataUrl:dataUrl,name:'camera_'+Date.now()+'.jpg',type:'image/jpeg'});
+  var dataUrl=c.toDataURL('image/jpeg',0.88);
+  curImgs.push({dataUrl:dataUrl, name:'camera_'+Date.now()+'.jpg'});
   renderPreviews(); showToast('✅ تم التقاط الصورة'); closeCamera();
 }
 
+// ── PREVIEWS ──
 function renderPreviews() {
   var g=document.getElementById('previewGrid'); g.innerHTML='';
   curImgs.forEach(function(img,i){
@@ -280,15 +281,16 @@ function renderPreviews() {
     g.appendChild(w);
   });
 }
-function removeImg(i){ curImgs.splice(i,1); renderPreviews(); }
+function removeImg(i){curImgs.splice(i,1);renderPreviews();}
 
+// ── SAVE ──
 function savePoint() {
   var num=document.getElementById('pointNum').value.trim();
-  if(!num){ showToast('⚠️ يرجى إدخال رقم النقطة'); return false; }
+  if(!num){showToast('⚠️ يرجى إدخال رقم النقطة');return false;}
   points.push({
     id:Date.now(), num:num,
     notes:document.getElementById('pointNotes').value.trim(),
-    images:curImgs.map(function(x){return {dataUrl:x.dataUrl,name:x.name,type:x.type};}),
+    images:curImgs.map(function(x){return {dataUrl:x.dataUrl,name:x.name};}),
     time:new Date().toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'}),
     day:document.getElementById('fieldDay').value.trim(),
     date:document.getElementById('fieldDate').value,
@@ -298,232 +300,422 @@ function savePoint() {
   showToast('✅ تم حفظ النقطة "'+num+'"');
   resetEntry(); return true;
 }
-function saveAndNew(){ if(savePoint()) setTimeout(function(){document.getElementById('pointNum').focus();},80); }
+function saveAndNew(){if(savePoint()) setTimeout(function(){document.getElementById('pointNum').focus();},80);}
 function resetEntry(){
   document.getElementById('pointNum').value='';
   document.getElementById('pointNotes').value='';
   document.getElementById('previewGrid').innerHTML='';
   curImgs=[];
 }
-function removePoint(id){ points=points.filter(function(p){return p.id!==id;}); updateTable(); updateStats(); updateNextNum(); showToast('🗑️ تم الحذف'); }
-function clearAll(){ if(confirm('مسح جميع النقاط؟')){ points=[]; updateTable(); updateStats(); updateNextNum(); showToast('🗑️ تم المسح'); } }
+function removePoint(id){points=points.filter(function(p){return p.id!==id;});updateTable();updateStats();updateNextNum();showToast('🗑️ تم الحذف');}
+function clearAll(){if(confirm('مسح جميع النقاط؟')){points=[];updateTable();updateStats();updateNextNum();showToast('🗑️ تم المسح');}}
 
+// ── TABLE ──
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function updateTable(){
   var b=document.getElementById('pointsBody'), s=document.getElementById('tblSub');
   document.getElementById('clearBtn').style.display=points.length?'':'none';
-  if(!points.length){ s.textContent='لا توجد نقاط بعد'; b.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="ico">🗂️</div><p>ابدأ بإضافة أول نقطة رصد</p></div></td></tr>'; return; }
+  if(!points.length){
+    s.textContent='لا توجد نقاط بعد';
+    b.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="ico">🗂️</div><p>ابدأ بإضافة أول نقطة رصد</p></div></td></tr>';
+    return;
+  }
   s.textContent=points.length+' نقطة مسجلة';
   b.innerHTML=points.map(function(p,i){
-    return '<tr><td class="td-num">'+(i+1)+'</td><td><strong>'+p.num+'</strong></td><td style="max-width:300px;font-size:.82rem;white-space:pre-wrap">'+(p.notes||'<span style="color:#999">—</span>')+'</td><td><span class="td-img">📸 '+p.images.length+'</span></td><td style="font-size:.8rem;color:var(--gray)">'+p.time+'</td><td><button class="td-del" onclick="removePoint('+p.id+')">🗑️</button></td></tr>';
+    return '<tr><td class="td-num">'+(i+1)+'</td><td><strong>'+esc(p.num)+'</strong></td>'+
+    '<td style="max-width:280px;font-size:.82rem;white-space:pre-wrap">'+(p.notes?esc(p.notes):'<span style="color:#999">—</span>')+'</td>'+
+    '<td><span class="td-img">📸 '+p.images.length+'</span></td>'+
+    '<td style="font-size:.8rem;color:var(--gray)">'+p.time+'</td>'+
+    '<td><button class="td-del" onclick="removePoint('+p.id+')">🗑️</button></td></tr>';
   }).join('');
 }
 function updateStats(){
   document.getElementById('statTotal').textContent=points.length;
   document.getElementById('statPhotos').textContent=points.reduce(function(s,p){return s+p.images.length;},0);
 }
-function updateNextNum(){ document.getElementById('nextNum').textContent=points.length+1; }
+function updateNextNum(){document.getElementById('nextNum').textContent=points.length+1;}
 
+// ── TOAST ──
 var toastT;
-function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},3200); }
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},3200);}
 
-function startExport(){
-  if(!points.length){ showToast('⚠️ لا توجد نقاط للتصدير'); return; }
-  var total=points.reduce(function(s,p){return s+p.images.length;},0);
-  document.getElementById('dlDesc').textContent=points.length+' نقطة — '+total+' صورة';
-  document.getElementById('progWrap').style.display='none';
-  document.getElementById('dlBtns').style.display='';
-  document.getElementById('dlOverlay').classList.add('active');
+// ── MODAL ──
+function openExportModal(){
+  if(!points.length){showToast('⚠️ لا توجد نقاط للتصدير');return;}
+  var totalImgs=points.reduce(function(s,p){return s+p.images.length;},0);
+  document.getElementById('exportDesc').textContent=points.length+' نقطة — '+totalImgs+' صورة مرفوعة';
+  document.getElementById('progArea').style.display='none';
+  document.getElementById('exportBtns').style.display='';
+  document.getElementById('exportOverlay').classList.add('active');
 }
-function closeDl(){ document.getElementById('dlOverlay').classList.remove('active'); }
+function closeExportModal(){document.getElementById('exportOverlay').classList.remove('active');}
+function setProgress(pct,lbl){document.getElementById('progBar').style.width=pct+'%';document.getElementById('progLbl').textContent=lbl;}
+function showProg(){document.getElementById('progArea').style.display='';document.getElementById('exportBtns').style.display='none';}
 
-function setProgress(pct,label){
-  document.getElementById('progBar').style.width=pct+'%';
-  document.getElementById('progLabel').textContent=label;
+// ── DOWNLOAD HELPER ──
+function triggerDownload(blob, filename){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},600);
 }
-function showProgress(){ document.getElementById('progWrap').style.display=''; document.getElementById('dlBtns').style.display='none'; }
 
-// ─── DOWNLOAD ALL PHOTOS AS ZIP ───
-function exportPhotos(){
+// ── EXPORT PHOTOS ZIP ──
+function doExportPhotos(){
   var allImgs=[];
-  points.forEach(function(p){
-    p.images.forEach(function(img,j){
-      allImgs.push({dataUrl:img.dataUrl, name:'نقطة_'+p.num+'_صورة_'+(j+1)+'.jpg'});
-    });
-  });
-  if(!allImgs.length){ showToast('⚠️ لا توجد صور مرفوعة'); return; }
-  showProgress(); setProgress(10,'جارٍ تجميع الصور...');
+  points.forEach(function(p){p.images.forEach(function(img,j){allImgs.push({dataUrl:img.dataUrl,name:'نقطة_'+p.num+'_صورة_'+(j+1)+'.jpg'});});});
+  if(!allImgs.length){showToast('⚠️ لا توجد صور مرفوعة');return;}
+  showProg(); setProgress(5,'جارٍ تجميع الصور...');
   var zip=new JSZip();
   var folder=zip.folder('صور_الجولة_الميدانية');
   allImgs.forEach(function(img,i){
-    var b64=img.dataUrl.split(',')[1];
-    folder.file(img.name, b64, {base64:true});
-    setProgress(10+Math.floor((i+1)/allImgs.length*70), 'إضافة صورة '+(i+1)+' من '+allImgs.length+'...');
+    folder.file(img.name, img.dataUrl.split(',')[1], {base64:true});
+    setProgress(5+Math.floor((i+1)/allImgs.length*75),'إضافة صورة '+(i+1)+' من '+allImgs.length);
   });
   setProgress(85,'ضغط الملفات...');
   zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}})
     .then(function(blob){
-      setProgress(100,'✅ جاهز للتحميل!');
-      setTimeout(function(){
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement('a'); a.href=url; a.download='صور_الجولة_الميدانية.zip';
-        document.body.appendChild(a); a.click();
-        setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},300);
-        showToast('🎉 تم تحميل '+allImgs.length+' صورة بنجاح!');
-        closeDl();
-      },500);
-    }).catch(function(e){ showToast('⚠️ خطأ: '+e.message); closeDl(); });
+      setProgress(100,'✅ جاهز!');
+      setTimeout(function(){triggerDownload(blob,'صور_الجولة_الميدانية.zip');showToast('🎉 تم تحميل '+allImgs.length+' صورة!');closeExportModal();},400);
+    }).catch(function(e){showToast('⚠️ خطأ: '+e.message);closeExportModal();});
 }
 
-// ─── XML HELPERS ───
-function xesc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function mkPara(text,opts){
-  var o=opts||{};
-  var bold=o.bold?'<w:b/><w:bCs/>':'';
-  var color=o.color?'<w:color w:val="'+o.color+'"/>':'';
-  var sz=o.sz?'<w:sz w:val="'+o.sz+'"/><w:szCs w:val="'+o.sz+'"/>':'<w:sz w:val="22"/><w:szCs w:val="22"/>';
-  var al=o.al?'<w:jc w:val="'+o.al+'"/>':'<w:jc w:val="right"/>';
-  var sp=''; if(o.sb||o.sa) sp='<w:spacing'+(o.sb?' w:before="'+o.sb+'"':'')+(o.sa?' w:after="'+o.sa+'"':'')+'/>';
-  return '<w:p><w:pPr><w:bidi/>'+al+sp+'</w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'+bold+color+sz+'</w:rPr><w:t xml:space="preserve">'+xesc(text)+'</w:t></w:r></w:p>';
-}
-function mkEmpty(){ return '<w:p><w:pPr><w:bidi/></w:pPr></w:p>'; }
-
-function mkHCell(text,w){
-  return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="0D5C2E"/><w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:b/><w:bCs/><w:color w:val="FFFFFF"/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr><w:t>'+xesc(text)+'</w:t></w:r></w:p></w:tc>';
-}
-function mkDCell(text,w,fill){
-  var f=fill||'FFFFFF';
-  return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="'+f+'"/><w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">'+xesc(text||'—')+'</w:t></w:r></w:p></w:tc>';
+// ── RESIZE IMAGE via Canvas (returns base64 JPEG string only) ──
+function resizeImg(dataUrl, maxW, maxH, quality, cb){
+  var img=new Image();
+  img.onload=function(){
+    var w=img.width, h=img.height;
+    var ratio=Math.min(maxW/w, maxH/h, 1);
+    var nw=Math.round(w*ratio), nh=Math.round(h*ratio);
+    var c=document.createElement('canvas'); c.width=nw; c.height=nh;
+    c.getContext('2d').drawImage(img,0,0,nw,nh);
+    // return ONLY the base64 part (no data: prefix)
+    var full=c.toDataURL('image/jpeg', quality||0.80);
+    cb(full.split(',')[1]);
+  };
+  img.onerror=function(){cb(null);};
+  img.src=dataUrl;
 }
 
-// Image cell inside table — embeds image using relationship ID
-function mkImgCell(rIds, w, fill){
-  var f=fill||'FFFFFF';
-  // Each image gets a drawing; stack them vertically inside the cell
-  var drawings='';
-  rIds.forEach(function(rId){
-    // 2400x1800 EMU = ~6.67cm x 5cm — fits well in a table cell
-    drawings+='<w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr><w:r><w:rPr/><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="2400000" cy="1800000"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="'+rId.numId+'" name="Image'+rId.numId+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="'+rId.numId+'" name="pic'+rId.numId+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rId.id+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="2400000" cy="1800000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
-  });
-  if(!drawings) drawings='<w:p><w:pPr><w:bidi/></w:pPr><w:r><w:t>—</w:t></w:r></w:p>';
-  return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="'+f+'"/><w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tcMar></w:tcPr>'+drawings+'</w:tc>';
-}
+// ── BUILD DOCX MANUALLY WITH JSZIP + FULL XML ──
+function doExportWord(){
+  showProg(); setProgress(5,'جارٍ تحضير البيانات...');
 
-// ─── EXPORT WORD ───
-function exportWord(){
-  showProgress(); setProgress(5,'جارٍ تحضير البيانات...');
+  var day     = document.getElementById('fieldDay').value.trim()  || '—';
+  var dateVal = document.getElementById('fieldDate').value;
+  var zone    = document.getElementById('fieldZone').value.trim() || '—';
+  var dateFmt = dateVal;
+  if(dateVal){var d=new Date(dateVal+'T12:00:00');dateFmt=d.toLocaleDateString('ar-JO',{year:'numeric',month:'long',day:'numeric'});}
 
-  var day=document.getElementById('fieldDay').value.trim()||'—';
-  var dateVal=document.getElementById('fieldDate').value;
-  var zone=document.getElementById('fieldZone').value.trim()||'—';
-  var dateFmt=dateVal;
-  if(dateVal){ var d=new Date(dateVal+'T12:00:00'); dateFmt=d.toLocaleDateString('ar-JO',{year:'numeric',month:'long',day:'numeric'}); }
-
-  // Collect all images across all points, assign rId numbers
-  var imgRegistry=[]; // {rId, b64, ext, pointIdx, imgIdx}
-  var rIdCounter=10; // start from rId10 to avoid collision with styles/settings
-  var numIdCounter=1;
-
+  // Step 1: collect all images that need resizing
+  var tasks=[];
   points.forEach(function(p,pi){
-    p._rIds=[];
     p.images.forEach(function(img,ii){
-      var ext='jpeg';
-      if(img.type==='image/png') ext='png';
-      else if(img.type==='image/gif') ext='gif';
-      var b64=img.dataUrl.split(',')[1];
-      var rid='rId'+rIdCounter;
-      imgRegistry.push({rid:rid, b64:b64, ext:ext, numId:numIdCounter});
-      p._rIds.push({id:rid, numId:numIdCounter});
-      rIdCounter++; numIdCounter++;
+      tasks.push({pi:pi,ii:ii,dataUrl:img.dataUrl});
     });
   });
 
-  setProgress(20,'جارٍ بناء الجدول...');
+  setProgress(10,'جارٍ معالجة الصور...');
 
-  // Build table — columns: # | رقم النقطة | ملاحظات | الصور
-  var bdr='<w:top w:val="single" w:sz="6" w:color="0D5C2E"/><w:left w:val="single" w:sz="6" w:color="0D5C2E"/><w:bottom w:val="single" w:sz="6" w:color="0D5C2E"/><w:right w:val="single" w:sz="6" w:color="0D5C2E"/><w:insideH w:val="single" w:sz="4" w:color="C5DDC9"/><w:insideV w:val="single" w:sz="4" w:color="C5DDC9"/>';
-  // widths: #=500, num=1400, notes=3300, photos=2820  total=8020
-  var hRow='<w:tr><w:trPr><w:tblHeader/><w:trHeight w:val="500"/></w:trPr>'+mkHCell('#',500)+mkHCell('رقم النقطة',1400)+mkHCell('الملاحظات',3300)+mkHCell('الصور',2820)+'</w:tr>';
-  var dRows=points.map(function(p,i){
-    var f=i%2===0?'F2F8F4':'FFFFFF';
-    return '<w:tr><w:trPr><w:trHeight w:val="200" w:hRule="atLeast"/></w:trPr>'+mkDCell(String(i+1),500,f)+mkDCell(p.num,1400,f)+mkDCell(p.notes,3300,f)+mkImgCell(p._rIds,2820,f)+'</w:tr>';
-  }).join('');
+  if(tasks.length===0){
+    assembleDocx(day,zone,dateFmt,dateVal,{});
+    return;
+  }
 
-  var table='<w:tbl><w:tblPr><w:tblW w:w="8020" w:type="dxa"/><w:tblBorders>'+bdr+'</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="500"/><w:gridCol w:w="1400"/><w:gridCol w:w="3300"/><w:gridCol w:w="2820"/></w:tblGrid>'+hRow+dRows+'</w:tbl>';
+  var resized={};
+  var done=0;
+  tasks.forEach(function(task){
+    resizeImg(task.dataUrl, 400, 300, 0.78, function(b64){
+      if(b64){
+        if(!resized[task.pi]) resized[task.pi]={};
+        resized[task.pi][task.ii]=b64;
+      }
+      done++;
+      setProgress(10+Math.floor(done/tasks.length*30),'معالجة الصور '+done+'/'+tasks.length+'...');
+      if(done===tasks.length) assembleDocx(day,zone,dateFmt,dateVal,resized);
+    });
+  });
+}
 
+function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function assembleDocx(day,zone,dateFmt,dateVal,resized){
   setProgress(45,'جارٍ بناء المستند...');
 
-  var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">\n'+
-'<w:body>\n'+
-mkEmpty()+
-mkPara('تقرير الفرز من المصدر',{bold:true,sz:44,color:'0D5C2E',al:'center',sb:'0',sa:'80'})+
-mkPara('منطقة: '+zone+'   |   يوم '+day+'   |   '+dateFmt,{sz:22,color:'C8971A',al:'center',sa:'80'})+
-'<w:p><w:pPr><w:bidi/><w:jc w:val="center"/><w:pBdr><w:bottom w:val="single" w:sz="6" w:color="0D5C2E" w:space="4"/></w:pBdr><w:spacing w:after="0"/></w:pPr></w:p>'+
-mkEmpty()+
-mkPara('مقدمة',{bold:true,sz:26,color:'0D5C2E',sb:'0',sa:'80'})+
-mkPara('يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر في منطقة '+zone+'، يوم '+day+' الموافق '+dateFmt+'. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.',{sa:'80'})+
-mkPara('تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية، وتقديم التوصيات اللازمة لتحسين الأداء وتطوير منظومة إدارة النفايات الصلبة.',{sa:'80'})+
-mkPara('شملت الجولة رصد '+points.length+' نقطة ميدانية مع توثيق شامل بالصور وتسجيل الملاحظات التفصيلية، وتحت إشراف المهندس عمر الهدبان.',{sa:'160'})+
-mkPara('جدول النقاط الميدانية',{bold:true,sz:26,color:'0D5C2E',sb:'0',sa:'120'})+
+  var zip=new JSZip();
+
+  // ── Content Types ──
+  var imgExts='<Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/>';
+  zip.file('[Content_Types].xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+    '<Default Extension="xml" ContentType="application/xml"/>'+
+    imgExts+
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'+
+    '</Types>');
+
+  zip.file('_rels/.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+    '</Relationships>');
+
+  zip.file('word/settings.xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
+    '<w:bidi/>'+
+    '<w:defaultTabStop w:val="720"/>'+
+    '<w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat>'+
+    '</w:settings>');
+
+  zip.file('word/styles.xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
+    '<w:docDefaults>'+
+    '<w:rPrDefault><w:rPr>'+
+    '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>'+
+    '<w:sz w:val="22"/><w:szCs w:val="22"/>'+
+    '<w:lang w:val="ar-SA" w:bidi="ar-SA"/>'+
+    '</w:rPr></w:rPrDefault>'+
+    '<w:pPrDefault><w:pPr>'+
+    '<w:bidi/><w:jc w:val="right"/>'+
+    '</w:pPr></w:pPrDefault>'+
+    '</w:docDefaults></w:styles>');
+
+  // ── Build image relationships & add images to zip ──
+  var imgRels='<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+
+              '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>';
+  var rIdCounter=10;
+  // Map: pointIndex -> [array of {rId, numId}]
+  var pointRidMap={};
+  var numIdCounter=100;
+
+  points.forEach(function(p,pi){
+    pointRidMap[pi]=[];
+    if(resized[pi]){
+      Object.keys(resized[pi]).forEach(function(ii){
+        var b64=resized[pi][ii];
+        var rId='rId'+rIdCounter;
+        var fname='img'+rIdCounter+'.jpeg';
+        zip.file('word/media/'+fname, b64, {base64:true});
+        imgRels+='<Relationship Id="'+rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/'+fname+'"/>';
+        pointRidMap[pi].push({rId:rId, numId:numIdCounter});
+        rIdCounter++; numIdCounter++;
+      });
+    }
+  });
+
+  zip.file('word/_rels/document.xml.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+imgRels+'</Relationships>');
+
+  setProgress(65,'جارٍ بناء الجدول...');
+
+  // ── XML helpers ──
+  function rpr(opts){
+    var o=opts||{};
+    return '<w:rPr>'+
+      '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>'+
+      (o.bold?'<w:b/><w:bCs/>':'')+
+      (o.color?'<w:color w:val="'+o.color+'"/>':'')+
+      '<w:sz w:val="'+(o.sz||22)+'"/><w:szCs w:val="'+(o.sz||22)+'"/>'+
+      '<w:rtl/>'+
+      '<w:lang w:val="ar-SA" w:bidi="ar-SA"/>'+
+      '</w:rPr>';
+  }
+  function ppr(align,spB,spA,shade){
+    return '<w:pPr><w:bidi/><w:jc w:val="'+(align||'right')+'"/>'+
+      (spB||spA?'<w:spacing'+(spB?' w:before="'+spB+'"':'')+(spA?' w:after="'+spA+'"':'')+'/>' :'')+
+      (shade?'<w:shd w:val="clear" w:color="auto" w:fill="'+shade+'"/>':'')+
+      '</w:pPr>';
+  }
+  function para(text,pAlign,spB,spA,bold,color,sz){
+    return '<w:p>'+ppr(pAlign,spB,spA)+'<w:r>'+rpr({bold:bold,color:color,sz:sz})+'<w:t xml:space="preserve">'+xe(text)+'</w:t></w:r></w:p>';
+  }
+  function emptyPara(){return '<w:p><w:pPr><w:bidi/></w:pPr></w:p>';}
+
+  // image drawing XML
+  function imgDrawing(rId,numId){
+    // 3240000 EMU wide x 2430000 EMU tall = ~9cm x 6.75cm
+    var cx=3240000, cy=2430000;
+    return '<w:drawing>'+
+      '<wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'+
+      '<wp:extent cx="'+cx+'" cy="'+cy+'"/>'+
+      '<wp:effectExtent l="0" t="0" r="0" b="0"/>'+
+      '<wp:docPr id="'+numId+'" name="Img'+numId+'"/>'+
+      '<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>'+
+      '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'+
+      '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'+
+      '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'+
+      '<pic:nvPicPr>'+
+      '<pic:cNvPr id="'+numId+'" name="Img'+numId+'"/>'+
+      '<pic:cNvPicPr><a:picLocks noChangeAspect="1" noChangeArrowheads="1"/></pic:cNvPicPr>'+
+      '</pic:nvPicPr>'+
+      '<pic:blipFill>'+
+      '<a:blip r:embed="'+rId+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>'+
+      '<a:stretch><a:fillRect/></a:stretch>'+
+      '</pic:blipFill>'+
+      '<pic:spPr bwMode="auto">'+
+      '<a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm>'+
+      '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'+
+      '</pic:spPr>'+
+      '</pic:pic>'+
+      '</a:graphicData></a:graphic>'+
+      '</wp:inline></w:drawing>';
+  }
+
+  // cell helpers
+  var BDRXML='<w:top w:val="single" w:sz="6" w:color="0D5C2E"/><w:left w:val="single" w:sz="4" w:color="C5DDC9"/><w:bottom w:val="single" w:sz="6" w:color="0D5C2E"/><w:right w:val="single" w:sz="4" w:color="C5DDC9"/>';
+  var BDRINSIDE='<w:top w:val="single" w:sz="4" w:color="C5DDC9"/><w:left w:val="single" w:sz="4" w:color="C5DDC9"/><w:bottom w:val="single" w:sz="4" w:color="C5DDC9"/><w:right w:val="single" w:sz="4" w:color="C5DDC9"/>';
+
+  function tcPr(widthDxa,fill,bdr){
+    return '<w:tcPr><w:tcW w:w="'+widthDxa+'" w:type="dxa"/>'+
+      '<w:shd w:val="clear" w:color="auto" w:fill="'+fill+'"/>'+
+      '<w:tcBorders>'+bdr+'</w:tcBorders>'+
+      '<w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>'+
+      '</w:tcPr>';
+  }
+  function hdrCell(text,w){
+    return '<w:tc>'+tcPr(w,'0D5C2E',BDRXML)+
+      '<w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr>'+
+      '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/><w:b/><w:bCs/><w:color w:val="FFFFFF"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:rtl/><w:lang w:val="ar-SA" w:bidi="ar-SA"/></w:rPr>'+
+      '<w:t>'+xe(text)+'</w:t></w:r></w:p></w:tc>';
+  }
+  function txtCell(text,w,fill,align){
+    return '<w:tc>'+tcPr(w,fill,BDRINSIDE)+
+      '<w:p><w:pPr><w:bidi/><w:jc w:val="'+(align||'right')+'"/></w:pPr>'+
+      '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/><w:sz w:val="20"/><w:szCs w:val="20"/><w:rtl/><w:lang w:val="ar-SA" w:bidi="ar-SA"/></w:rPr>'+
+      '<w:t xml:space="preserve">'+xe(text||'—')+'</w:t></w:r></w:p></w:tc>';
+  }
+  function numCell(text,w,fill){
+    return '<w:tc>'+tcPr(w,fill,BDRINSIDE)+
+      '<w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr>'+
+      '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/><w:b/><w:bCs/><w:color w:val="0D5C2E"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:rtl/><w:lang w:val="ar-SA" w:bidi="ar-SA"/></w:rPr>'+
+      '<w:t>'+xe(text)+'</w:t></w:r></w:p></w:tc>';
+  }
+  function imgCell(pi,w,fill){
+    var rids=pointRidMap[pi]||[];
+    var inner='';
+    if(rids.length>0){
+      rids.forEach(function(r){
+        inner+='<w:p><w:pPr><w:bidi/><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr>'+
+          '<w:r><w:rPr/>'+ imgDrawing(r.rId,r.numId)+'</w:r></w:p>';
+      });
+    } else {
+      inner='<w:p><w:pPr><w:bidi/><w:jc w:val="center"/></w:pPr>'+
+        '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:color w:val="999999"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr>'+
+        '<w:t>لا توجد صور</w:t></w:r></w:p>';
+    }
+    return '<w:tc>'+tcPr(w,fill,BDRINSIDE)+inner+'</w:tc>';
+  }
+
+  // widths: #=500 | num=1400 | notes=4000 | imgs=3100  total=9000 dxa (~15.9cm)
+  var W={idx:500, num:1400, notes:4000, imgs:3100, total:9000};
+
+  var hdrRow='<w:tr><w:trPr><w:tblHeader/></w:trPr>'+
+    hdrCell('#',W.idx)+hdrCell('رقم النقطة',W.num)+hdrCell('الملاحظات',W.notes)+hdrCell('الصور الميدانية',W.imgs)+
+    '</w:tr>';
+
+  var dataRows=points.map(function(p,pi){
+    var fill=pi%2===0?'EAF4EE':'FFFFFF';
+    return '<w:tr>'+
+      '<w:trPr><w:trHeight w:val="1200" w:hRule="atLeast"/></w:trPr>'+
+      numCell(String(pi+1),W.idx,fill)+
+      txtCell(p.num,W.num,fill,'center')+
+      txtCell(p.notes,W.notes,fill,'right')+
+      imgCell(pi,W.imgs,fill)+
+    '</w:tr>';
+  }).join('');
+
+  var table=
+    '<w:tbl>'+
+    '<w:tblPr>'+
+    '<w:tblW w:w="'+W.total+'" w:type="dxa"/>'+
+    '<w:jc w:val="center"/>'+
+    '<w:bidiVisual/>'+
+    '<w:tblBorders>'+
+    '<w:top w:val="single" w:sz="8" w:color="0D5C2E"/>'+
+    '<w:left w:val="single" w:sz="8" w:color="0D5C2E"/>'+
+    '<w:bottom w:val="single" w:sz="8" w:color="0D5C2E"/>'+
+    '<w:right w:val="single" w:sz="8" w:color="0D5C2E"/>'+
+    '<w:insideH w:val="single" w:sz="4" w:color="C5DDC9"/>'+
+    '<w:insideV w:val="single" w:sz="4" w:color="C5DDC9"/>'+
+    '</w:tblBorders>'+
+    '<w:tblLayout w:type="fixed"/>'+
+    '</w:tblPr>'+
+    '<w:tblGrid>'+
+    '<w:gridCol w:w="'+W.idx+'"/>'+
+    '<w:gridCol w:w="'+W.num+'"/>'+
+    '<w:gridCol w:w="'+W.notes+'"/>'+
+    '<w:gridCol w:w="'+W.imgs+'"/>'+
+    '</w:tblGrid>'+
+    hdrRow+dataRows+
+    '</w:tbl>';
+
+  setProgress(80,'جارٍ تجميع الملف...');
+
+  var docXml=
+'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'+
+' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'+
+' xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"'+
+' xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"'+
+' xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'+
+'<w:body>'+
+
+emptyPara()+
+para('تقرير الفرز من المصدر','center','0','80',true,'0D5C2E',44)+
+para('منطقة: '+zone+'   |   يوم '+day+'   |   '+dateFmt,'center','0','240',false,'C8971A',24)+
+
+'<w:p><w:pPr><w:bidi/><w:jc w:val="right"/><w:spacing w:after="120"/><w:pBdr><w:bottom w:val="single" w:sz="6" w:color="0D5C2E" w:space="4"/></w:pBdr></w:pPr>'+
+'<w:r>'+rpr({bold:true,color:'0D5C2E',sz:26})+'<w:t>مقدمة</w:t></w:r></w:p>'+
+
+para('يتضمن هذا التقرير نتائج الجولة الميدانية التفتيشية التي أُجريت في إطار مشروع الفرز من المصدر في منطقة '+zone+'، يوم '+day+' الموافق '+dateFmt+'. وقد جاءت هذه الجولة في سياق المساعي الحثيثة التي تبذلها دائرة الدراسات البيئية للارتقاء بمستوى إدارة النفايات الصلبة وتعزيز ثقافة الفرز من المصدر في المجتمعات المحلية.','both','0','80',false,'111111',22)+
+
+para('تندرج هذه الجولة ضمن برنامج المتابعة والرصد الميداني المستمر الذي يهدف إلى قياس مدى التزام السكان بممارسات الفرز الصحيح للنفايات وفق التصنيفات المعتمدة، ورصد الإشكاليات الميدانية وتقديم التوصيات اللازمة لتطوير منظومة إدارة النفايات الصلبة.','both','0','80',false,'111111',22)+
+
+para('شملت الجولة رصد '+points.length+' نقطة ميدانية مع توثيق شامل بالصور وتسجيل الملاحظات التفصيلية، تحت إشراف المهندس عمر الهدبان.','both','0','200',false,'111111',22)+
+
+'<w:p><w:pPr><w:bidi/><w:jc w:val="right"/><w:spacing w:before="80" w:after="120"/><w:pBdr><w:bottom w:val="single" w:sz="6" w:color="0D5C2E" w:space="4"/></w:pBdr></w:pPr>'+
+'<w:r>'+rpr({bold:true,color:'0D5C2E',sz:26})+'<w:t>جدول النقاط الميدانية المرصودة</w:t></w:r></w:p>'+
+
 table+
-mkEmpty()+mkEmpty()+
-'<w:p><w:pPr><w:bidi/><w:jc w:val="right"/><w:pBdr><w:top w:val="single" w:sz="4" w:color="C5DDC9" w:space="4"/></w:pBdr><w:spacing w:before="200" w:after="80"/></w:pPr></w:p>'+
-mkPara('إعداد: م. عمر الهدبان',{bold:true,color:'0D5C2E',sa:'60'})+
-mkPara('دائرة الدراسات البيئية / م. معاذ المناصير',{color:'555555',sa:'60'})+
-mkPara(dateFmt,{color:'888888',sa:'0'})+
-'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1080" w:right="1080" w:bottom="1080" w:left="1080"/></w:sectPr>\n'+
+
+emptyPara()+emptyPara()+
+
+'<w:p><w:pPr><w:bidi/><w:jc w:val="right"/><w:spacing w:before="200" w:after="0"/><w:pBdr><w:top w:val="single" w:sz="4" w:color="C5DDC9" w:space="4"/></w:pBdr></w:pPr></w:p>'+
+
+para('إعداد: م. عمر الهدبان','right','40','40',true,'0D5C2E',22)+
+para('دائرة الدراسات البيئية / م. معاذ المناصير','right','0','40',false,'555555',20)+
+para(dateFmt,'right','0','0',false,'888888',20)+
+
+'<w:sectPr>'+
+'<w:bidi/>'+
+'<w:pgSz w:w="11906" w:h="16838"/>'+
+'<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567"/>'+
+'</w:sectPr>'+
 '</w:body></w:document>';
 
-  setProgress(60,'جارٍ تجميع الصور...');
-
-  // Build relationships XML
-  var relEntries='<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>';
-  imgRegistry.forEach(function(img){
-    var ct=img.ext==='png'?'png':'jpeg';
-    relEntries+='<Relationship Id="'+img.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/'+img.rid+'.'+ct+'"/>';
-  });
-
-  var wordRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+relEntries+'</Relationships>';
-
-  // Content types
-  var ctOverrides='<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>';
-  var ctDefaults='<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/>';
-  var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+ctDefaults+ctOverrides+'</Types>';
-
-  var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
-  var styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="ar-SA" w:bidi="ar-SA"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
-  var settings='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
-
-  var zip=new JSZip();
-  zip.file('[Content_Types].xml', ct);
-  zip.file('_rels/.rels', rels);
   zip.file('word/document.xml', docXml);
-  zip.file('word/_rels/document.xml.rels', wordRels);
-  zip.file('word/styles.xml', styles);
-  zip.file('word/settings.xml', settings);
-
-  setProgress(72,'جارٍ إضافة الصور...');
-  imgRegistry.forEach(function(img,i){
-    var ext=img.ext==='png'?'png':'jpeg';
-    zip.file('word/media/'+img.rid+'.'+ext, img.b64, {base64:true});
-    setProgress(72+Math.floor((i+1)/Math.max(imgRegistry.length,1)*18), 'إضافة صورة '+(i+1)+'...');
-  });
 
   setProgress(92,'جارٍ ضغط الملف...');
-  zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE',compressionOptions:{level:6}})
-    .then(function(blob){
-      setProgress(100,'✅ جاهز!');
-      setTimeout(function(){
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement('a'); a.href=url;
-        a.download='تقرير_فرز_المصدر_'+zone+'_'+(dateVal||'بدون_تاريخ')+'.docx';
-        document.body.appendChild(a); a.click();
-        setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},300);
-        showToast('🎉 تم تحميل التقرير بنجاح!');
-        closeDl();
-      },500);
-    }).catch(function(e){ showToast('⚠️ خطأ: '+e.message); console.error(e); closeDl(); });
+
+  zip.generateAsync({
+    type:'blob',
+    mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    compression:'DEFLATE',
+    compressionOptions:{level:6}
+  }).then(function(blob){
+    setProgress(100,'✅ جاهز للتحميل!');
+    setTimeout(function(){
+      triggerDownload(blob,'تقرير_فرز_المصدر_'+zone+'_'+(dateVal||'بدون_تاريخ')+'.docx');
+      showToast('🎉 تم تحميل التقرير بنجاح!');
+      closeExportModal();
+    },400);
+  }).catch(function(e){showToast('⚠️ خطأ: '+e.message);console.error(e);closeExportModal();});
 }
 </script>
 </body>
